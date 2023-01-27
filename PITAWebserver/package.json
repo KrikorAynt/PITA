@@ -1,0 +1,17 @@
+{
+  "name": "capstonejs",
+  "version": "1.0.0",
+  "description": "Capstone?",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Krikor",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "express-mysql-session": "^2.1.8",
+    "express-session": "^1.17.3",
+    "mysql": "^2.18.1"
+  }
+}
