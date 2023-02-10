@@ -23,7 +23,7 @@ public class SignUpGUI {
 
 	private JTextField userText;
 	private JPasswordField passText;
-	private JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
+	protected JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
 	
 	public SignUpGUI() {
 		JFrame frame = new JFrame();

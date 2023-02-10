@@ -18,7 +18,7 @@ import java.net.URLConnection;
 public class LoginGUI{
 	private JTextField userText;
 	private JPasswordField passText;
-	private JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
+	protected JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
 	
 	public LoginGUI() {
 		JFrame frame = new JFrame();
@@ -96,16 +96,19 @@ public class LoginGUI{
 				    .build();
 				HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 				infoLabel.setText(response.body());
-				List<String> cookieHeaders = response.headers().allValues("Set-Cookie");
-				driver.cookie = cookieHeaders.get(0);
-				driver.cookie = driver.cookie.split(";")[0];
 				
 				if (response.body().equals("User Doesn't Exist!"))
 					return false;
 				else if(response.body().equals("Wrong Password!"))
 					return false;
-				else if(response.body().equals("Logged In!"))
+				else if(response.body().equals("Logged In!")) {
+
+					List<String> cookieHeaders = response.headers().allValues("Set-Cookie");
+					driver.cookie = cookieHeaders.get(0);
+					driver.cookie = driver.cookie.split(";")[0];
+					
 					return true;
+				}
 			
 		} catch (IOException e) {
 			e.printStackTrace();

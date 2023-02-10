@@ -19,7 +19,7 @@ import javax.swing.SwingConstants;
 
 public class MainMenu {
 	
-	private JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
+	protected JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
 	
 	public MainMenu() {
 		JFrame frame = new JFrame();
@@ -33,12 +33,26 @@ public class MainMenu {
 	        }
 	    });
 		
-		JButton signUp = new JButton("Sign Up");
+		JButton signUp = new JButton("Log Out");
 		signUp.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
-	          
+	        	
+	        	logout();
+	        	frame.setVisible(false);
+	        	
+	        	
+	        }
+	    });
+		
+		JButton videos = new JButton("Watch my video");
+		videos.addActionListener(new ActionListener() {
+
+	        @Override
+	        public void actionPerformed(ActionEvent event) {
+	        	new VideoPlayer();
+	        	frame.setVisible(false);
 	        }
 	    });
 		
@@ -51,13 +65,14 @@ public class MainMenu {
 		panel.add(label);
 		panel.add(button);
 		panel.add(signUp);
+		panel.add(videos);
 		panel.add(infoLabel);
 		
 		
 		frame.add(panel,BorderLayout.CENTER);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setTitle("PETA");
-		frame.getRootPane().setDefaultButton(button);
+		//frame.getRootPane().setDefaultButton(button);
 		
 		accInfo();
 		frame.pack();
@@ -73,6 +88,30 @@ public class MainMenu {
 				HttpResponse<String> response;
 				response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 				infoLabel.setText(response.body());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		
+		return true;
+	}
+	public boolean logout() {
+		try {
+			HttpRequest request = HttpRequest.newBuilder()
+			    .uri(URI.create("http://localhost:5000/logout"))
+			    .header("cookie", driver.cookie)
+			    .method("GET", HttpRequest.BodyPublishers.noBody())
+			    .build();
+				HttpResponse<String> response;
+				response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+				
+				driver.login = new LoginGUI();
+				driver.login.infoLabel.setText(response.body());
+				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
