@@ -94,7 +94,7 @@ public class SignUpGUI {
 		  
 		try {
 			HttpRequest request = HttpRequest.newBuilder()
-				    .uri(URI.create("http://localhost:5000/signup"))
+				    .uri(URI.create(driver.url+"signup"))
 				    .header("cookie", "session=s%253AHJEksfpD4EWcyB4TtdnSOBP3LKcxBY25.db2YDmriKgk8jSy87tOYpty0l%252Farw%252FEd3uRIoUjJaAY")
 				    .header("Content-Type", "application/json")
 				    .method("POST", HttpRequest.BodyPublishers.ofString("{\n\t\"user\": \""+username+"\",\n\t\"pass\": \""+password+"\"\n}"))

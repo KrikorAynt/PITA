@@ -27,8 +27,8 @@ const sessions = session({
     cookie: {maxAge: 7200000}
 });
 
-server.use(express.json({limit: '500mb'}));
-server.use(express.urlencoded({limit: '500mb'}));
+server.use(express.json({limit: '1000mb'}));
+server.use(express.urlencoded({limit: '1000mb'}));
 server.use(sessions);
 server.use(initSession);
 

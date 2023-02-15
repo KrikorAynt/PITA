@@ -81,7 +81,7 @@ public class MainMenu {
 	public boolean accInfo() {
 		try {
 			HttpRequest request = HttpRequest.newBuilder()
-			    .uri(URI.create("http://localhost:5000/account"))
+			    .uri(URI.create(driver.url+"account"))
 			    .header("cookie", driver.cookie)
 			    .method("GET", HttpRequest.BodyPublishers.noBody())
 			    .build();
@@ -102,7 +102,7 @@ public class MainMenu {
 	public boolean logout() {
 		try {
 			HttpRequest request = HttpRequest.newBuilder()
-			    .uri(URI.create("http://localhost:5000/logout"))
+			    .uri(URI.create(driver.url+"logout"))
 			    .header("cookie", driver.cookie)
 			    .method("GET", HttpRequest.BodyPublishers.noBody())
 			    .build();

@@ -35,7 +35,7 @@ public class Video {
 			
 			
 			HttpRequest request = HttpRequest.newBuilder()
-			    .uri(URI.create("http://localhost:5000/sendVid"))
+			    .uri(URI.create(driver.url+"sendVid"))
 			    .header("cookie", driver.cookie)
 			    .header("Content-Type", "application/json")
 			    .method("POST", HttpRequest.BodyPublishers.ofString("{\n\"title\": \""+title+"\",\n\"vid\": \""+video+"\"\n}"))
@@ -63,7 +63,7 @@ public class Video {
 		try {
 			
 			HttpRequest request = HttpRequest.newBuilder()
-			    .uri(URI.create("http://localhost:5000/reqVid?title="+title))
+			    .uri(URI.create(driver.url+"reqVid?title="+title))
 			    .header("cookie", driver.cookie)
 			    .header("Content-Type", "application/json")
 			    .method("GET", HttpRequest.BodyPublishers.noBody())

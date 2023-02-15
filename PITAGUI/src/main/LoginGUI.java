@@ -89,7 +89,7 @@ public class LoginGUI{
 		  
 		try {
 				HttpRequest request = HttpRequest.newBuilder()
-				    .uri(URI.create("http://localhost:5000/login"))
+				    .uri(URI.create(driver.url+"login"))
 				    .header("cookie", "session=s%253AHJEksfpD4EWcyB4TtdnSOBP3LKcxBY25.db2YDmriKgk8jSy87tOYpty0l%252Farw%252FEd3uRIoUjJaAY")
 				    .header("Content-Type", "application/json")
 				    .method("POST", HttpRequest.BodyPublishers.ofString("{\n\"user\": \""+username+"\",\n\"pass\": \""+password+"\"\n}"))
