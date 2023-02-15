@@ -22,7 +22,7 @@ public class VideoPlayer {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
-	        	Video vid = new Video("bicepCurl_both.xef",".\\videos");
+	        	Video vid = new Video("fortnite.mp4",".\\videos");
 	        	vid.videoSend();
 	        }
 	    });
@@ -32,7 +32,7 @@ public class VideoPlayer {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
-	        	Video vid = new Video("bicepCurl_both.xef",".\\videos");
+	        	Video vid = new Video("fortnite.mp4",".\\videos");
 	        	vid.videoRec();
 	        }
 	    });
