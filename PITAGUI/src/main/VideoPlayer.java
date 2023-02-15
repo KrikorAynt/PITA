@@ -17,39 +17,40 @@ public class VideoPlayer {
 	public VideoPlayer() {
 		JFrame frame = new JFrame();
 		
-		JButton signUp = new JButton("Sign Up");
-		signUp.addActionListener(new ActionListener() {
+		JButton upload = new JButton("Upload");
+		upload.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
-	        	
+	        	Video vid = new Video("fortnite.mp4",".\\videos");
+	        	vid.videoSend();
 	        }
 	    });
 		
-		JButton login = new JButton("Login");
-		login.addActionListener(new ActionListener() {
+		JButton download = new JButton("Download");
+		download.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
-	            
+	        	Video vid = new Video("fortnite.mp4",".\\videos");
+	        	vid.videoRec();
 	        }
 	    });
 		
-		JLabel label = new JLabel("SIGN UP HERE", SwingConstants.CENTER);
+		JLabel label = new JLabel("VIDEO", SwingConstants.CENTER);
 		
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
 		panel.setLayout(new GridLayout(0,1));
 		panel.add(label);
-		panel.add(signUp);
-		panel.add(login);
+		panel.add(upload);
+		panel.add(download);
 		
 		
 		frame.add(panel,BorderLayout.CENTER);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("PETA Sign Up");
-		frame.getRootPane().setDefaultButton(signUp);
+		frame.setTitle("PETA Video Player");
 		
 		
 		frame.pack();

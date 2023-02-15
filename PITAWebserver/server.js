@@ -4,6 +4,7 @@ const mysql = require('mysql');
 const crypto = require('crypto');
 const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
+const fs = require('fs');
 
 let options = {
     host: 'localhost',
@@ -26,7 +27,8 @@ const sessions = session({
     cookie: {maxAge: 7200000}
 });
 
-server.use(express.json());
+server.use(express.json({limit: '500mb'}));
+server.use(express.urlencoded({limit: '500mb'}));
 server.use(sessions);
 server.use(initSession);
 
@@ -35,6 +37,8 @@ server.post("/message", logMessage);
 server.post("/signup", registerUser);
 server.post("/login", login);
 server.get("/logout", logout);
+server.post("/sendVid", receiveVideo);
+server.get("/reqVid", requestVideo);
 
 http.createServer(server).listen(5000);
 
@@ -63,7 +67,10 @@ function registerUser(req, res, next){
         hash = hash.toString("hex");
         req.app.locals.pool.query("INSERT INTO userInfo (username, hash, salt) VALUES ('"+username+"', '"+hash+"','"+salt+"');",function(err, result){
             if (err) res.status(200).send("User already exists. Try again!");
-            else res.status(200).send("User Created. Well done!");
+            else{ 
+                res.status(200).send("User Created. Well done!");
+                fs.mkdirSync("./videos/"+username, { recursive: true })
+            }
         });
         
     }); 
@@ -99,6 +106,20 @@ function setUpDatabase(server){
                         debug    :  false
                     })
                 });
+                tabler = "CREATE TABLE IF NOT EXISTS videos "+
+                    "(username varchar(256) NOT NULL, title varchar(256) NOT NULL,"+
+                    " path varchar(256) NOT NULL, PRIMARY KEY(username, title));";
+                con.query(tabler, function (err, result) {
+                    if (err) throw err;
+                    server.locals.pool = mysql.createPool({
+                        connectionLimit : 100,
+                        host     : 'localhost',
+                        user     : 'root',
+                        password : 'password',
+                        database : 'theData',
+                        debug    :  false
+                    })
+                });
             });
         });
     });
@@ -108,7 +129,7 @@ function login(req, res, next){
     let password = req.body.pass;
     req.app.locals.pool.query("SELECT hash, salt FROM userInfo WHERE username= '"+username+"';",function(err, result){
         if (err) throw err;
-        if(result.length==0) res.status(200).send("User Doesn't Exist!")
+        if(result.length==0) res.status(200).send("Wrong Credentials!");
         else{ 
             let storedHash=result[0].hash;
             let salt = Buffer.from(result[0].salt,"hex");
@@ -122,12 +143,47 @@ function login(req, res, next){
                 }
                 else {
                     req.session.loggedIn=false;
-                    res.status(200).send("Wrong Password!");
+                    res.status(200).send("Wrong Credentials!");
                 }
             });
 
         };
     });
+}
+function receiveVideo(req,res, next){
+    let title = req.body.title;
+    let vid = req.body.vid;
+    let video = Buffer.from(vid,"base64");
+
+    if (req.session.loggedIn==true){
+        let path  = "./videos/"+req.session.username+"/"+title;
+        fs.writeFile(path, video, function(err){
+                if(err) throw err;
+                else{
+                    req.app.locals.pool.query("INSERT INTO videos (username, title, path) VALUES ('"+req.session.username+"', '"+title+"','"+path+"');",function(err, result){
+                        if (err) res.status(200).send("Video Exists!");
+                        else res.status(200).send("Video Accepted!");
+                    });
+                    
+                }
+        })
+    }
+    else res.status(401).send("You are not logged in!");
+
+}
+function requestVideo(req,res, next){
+    let title = req.query.title;
+    
+    if (req.session.hasOwnProperty("loggedIn")){
+        let path  = "./videos/"+req.session.username+"/"+title;
+        fs.readFile(path, function(err, data){
+                if(err) throw err;
+                let video = Buffer.from(data).toString('base64');
+                res.status(200).send(video);
+                
+        })
+    }
+    else res.status(200).send("You are not logged in!");
 }
 function initSession(req, res, next){
     if (!req.session.hasOwnProperty("loggedIn")) {
