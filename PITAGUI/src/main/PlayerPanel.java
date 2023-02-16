@@ -1,30 +1,35 @@
 package main;
+import uk.co.caprica.vlcj.binding.LibVlc;
 
 import java.awt.BorderLayout;
 import java.io.File;
 
-
+import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class PlayerPanel extends JPanel {
 
-    private File vlcInstallPath = new File("D:/vlc");
-    private EmbeddedMediaPlayer player;
+    //private File vlcInstallPath = new File("D:/vlc");
+    EmbeddedMediaPlayer player;
 
     public PlayerPanel() {
-        NativeLibrary.addSearchPath("libvlc", vlcInstallPath.getAbsolutePath());
         EmbeddedMediaPlayerComponent videoCanvas = new EmbeddedMediaPlayerComponent();
         this.setLayout(new BorderLayout());
         this.add(videoCanvas, BorderLayout.CENTER);
-        this.player = videoCanvas.getMediaPlayer();
+        this.player = videoCanvas.mediaPlayer();
     }
 
     public void play(String media) {
-        player.prepareMedia(media);
-        player.parseMedia();
-        player.play();
+        player.media().play(media);
+        
     }
+
+	public void close() {
+		player.release();
+		
+	}
 }
 
 

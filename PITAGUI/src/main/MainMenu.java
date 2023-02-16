@@ -20,9 +20,9 @@ import javax.swing.SwingConstants;
 public class MainMenu {
 	
 	protected JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
-	
+	protected JFrame frame = new JFrame();
 	public MainMenu() {
-		JFrame frame = new JFrame();
+		
 		
 		JButton button = new JButton("Refresh");
 		button.addActionListener(new ActionListener() {
@@ -122,5 +122,8 @@ public class MainMenu {
 			
 		
 		return true;
+	}
+	public void open() {
+		frame.setVisible(true);
 	}
 }

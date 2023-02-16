@@ -89,4 +89,7 @@ public class Video {
 		
 		return false;
 	}
+	public String getPath() {
+		return path;
+	}
 }
