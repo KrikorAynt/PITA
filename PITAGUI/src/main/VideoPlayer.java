@@ -1,7 +1,6 @@
 package main;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,8 +11,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -84,8 +81,6 @@ public class VideoPlayer {
         controlsPane.add(rewindButton);
         JButton skipButton = new JButton("Skip");
         controlsPane.add(skipButton);
-        Container contentPane;
-        
         player = new PlayerPanel();
 		
 
@@ -152,10 +147,8 @@ public class VideoPlayer {
 				response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 				return response.body();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			

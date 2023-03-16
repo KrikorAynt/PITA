@@ -1,14 +1,10 @@
 package main;
-import uk.co.caprica.vlcj.binding.LibVlc;
-
 import java.awt.BorderLayout;
-import java.io.File;
-
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+@SuppressWarnings("serial")
 public class PlayerPanel extends JPanel {
 
     //private File vlcInstallPath = new File("D:/vlc");
