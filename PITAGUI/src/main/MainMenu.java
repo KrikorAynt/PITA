@@ -24,17 +24,18 @@ public class MainMenu {
 	public MainMenu() {
 		
 		
-		JButton button = new JButton("Refresh");
-		button.addActionListener(new ActionListener() {
+		JButton upload = new JButton("Upload New Excercise");
+		upload.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
-	        	accInfo();
+	        	new Uploader();
+	        	frame.setVisible(false);
 	        }
 	    });
 		
-		JButton signUp = new JButton("Log Out");
-		signUp.addActionListener(new ActionListener() {
+		JButton logout = new JButton("Log Out");
+		logout.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
@@ -46,8 +47,8 @@ public class MainMenu {
 	        }
 	    });
 		
-		JButton videos = new JButton("Watch my video");
-		videos.addActionListener(new ActionListener() {
+		JButton watch = new JButton("Feedback Hub");
+		watch.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
@@ -63,9 +64,9 @@ public class MainMenu {
 		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
 		panel.setLayout(new GridLayout(0,1));
 		panel.add(label);
-		panel.add(button);
-		panel.add(signUp);
-		panel.add(videos);
+		panel.add(upload);
+		panel.add(watch);
+		panel.add(logout);
 		panel.add(infoLabel);
 		
 		

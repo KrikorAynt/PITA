@@ -70,14 +70,14 @@ public class Video {
 			    .build();
 				HttpResponse<String> response;
 				response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
-				
-				byte[] videoBytes = Base64.getDecoder().decode(response.body());
-				FileOutputStream fileOS = new FileOutputStream("./videos/"+title);
-				fileOS.write(videoBytes);
-				fileOS.close();
-				path = "./videos/"+title;
-				return true;
-				
+				if(!response.body().equals("Requested Video DNE")) {
+					byte[] videoBytes = Base64.getDecoder().decode(response.body());
+					FileOutputStream fileOS = new FileOutputStream("./videos/"+title);
+					fileOS.write(videoBytes);
+					fileOS.close();
+					path = "./videos/"+title;
+					return true;
+				}
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -91,5 +91,12 @@ public class Video {
 	}
 	public String getPath() {
 		return path;
+	}
+	public String getTitle() {
+		return title;
+	}
+	public boolean vidExist() {
+		File video = new File(path+"\\"+title);
+        return video.exists();
 	}
 }

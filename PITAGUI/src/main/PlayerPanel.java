@@ -22,6 +22,9 @@ public class PlayerPanel extends JPanel {
     }
 
     public void play(String media) {
+    	if (player.status().isPlaying()) {
+            player.controls().stop();
+        }
         player.media().play(media);
         
     }

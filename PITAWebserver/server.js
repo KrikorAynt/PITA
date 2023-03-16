@@ -38,7 +38,8 @@ server.post("/signup", registerUser);
 server.post("/login", login);
 server.get("/logout", logout);
 server.post("/sendVid", receiveVideo);
-server.get("/reqVid", requestVideo);
+server.get("/reqVid", sendVideo);
+server.get("/reqVidList", sendVideoList);
 
 http.createServer(server).listen(5000);
 
@@ -171,20 +172,41 @@ function receiveVideo(req,res, next){
     else res.status(401).send("You are not logged in!");
 
 }
-function requestVideo(req,res, next){
+function sendVideo(req,res, next){
     let title = req.query.title;
-    
     if (req.session.hasOwnProperty("loggedIn")){
         let path  = "./videos/"+req.session.username+"/"+title;
-        fs.readFile(path, function(err, data){
-                if(err) throw err;
+	    fs.readFile(path, function (err, data) {
+            if (err) {
+                res.status(200).send("Requested Video DNE");
+            } else {
                 let video = Buffer.from(data).toString('base64');
                 res.status(200).send(video);
-                
-        })
+            }
+        });
     }
     else res.status(200).send("You are not logged in!");
 }
+function sendVideoList(req, res, next) {
+    if (req.session.hasOwnProperty("loggedIn")) {
+      let user = req.session.username;
+      req.app.locals.pool.query(
+        "SELECT title FROM videos WHERE username= '" + user + "';",
+        function (err, result) {
+          if (err) throw err;
+          if (result.length == 0) res.status(200).send("User Has No Videos");
+          else {
+            let titles = result.map((row) => row.title);
+            let titlesString = titles.join(",");
+            res.status(200).send(titlesString);
+          }
+        }
+      );
+    } else {
+      res.status(200).send("You are not logged in!");
+    }
+  }
+  
 function initSession(req, res, next){
     if (!req.session.hasOwnProperty("loggedIn")) {
         req.session.loggedIn = false;
