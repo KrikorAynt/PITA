@@ -159,6 +159,8 @@ def run(url1, url2):
     plt.xlabel("Frame")
     plt.ylabel("Score")
     plt.savefig("output.jpg")
+    plt.xlim(0, np.shape(user_body)[1])
+    plt.ylim(0, 105)
     plt.show()
     return scoring(user_body, trainer_body)
 
