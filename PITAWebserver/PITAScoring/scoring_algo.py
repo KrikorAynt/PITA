@@ -166,8 +166,6 @@ def run(url1, url2):
         os.makedirs(path)
     path = f"Graphs/{username}/{exercise}.png"
     plt.savefig(f"Graphs/{username}/{exercise}.png")
-    plt.show()
-
     return path
 
 
