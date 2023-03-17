@@ -6,6 +6,7 @@ const session = require('express-session');
 const MySQLStore = require('express-mysql-session')(session);
 const fs = require('fs');
 
+
 let options = {
     host: 'localhost',
     port: 3306,
@@ -38,8 +39,10 @@ server.post("/signup", registerUser);
 server.post("/login", login);
 server.get("/logout", logout);
 server.post("/sendVid", receiveVideo);
+server.post("/skeleton",skeleton);
 server.get("/reqVid", sendVideo);
 server.get("/reqVidList", sendVideoList);
+
 
 http.createServer(server).listen(5000);
 
@@ -77,6 +80,7 @@ function registerUser(req, res, next){
     }); 
 }
 
+
 function setUpDatabase(server){
     
     let con = mysql.createConnection({
@@ -109,7 +113,7 @@ function setUpDatabase(server){
                 });
                 tabler = "CREATE TABLE IF NOT EXISTS videos "+
                     "(username varchar(256) NOT NULL, title varchar(256) NOT NULL,"+
-                    " path varchar(256) NOT NULL, PRIMARY KEY(username, title));";
+                    " path varchar(256) NOT NULL, imgPath varchar(256), exercise varchar(256), PRIMARY KEY(username, title));";
                 con.query(tabler, function (err, result) {
                     if (err) throw err;
                     server.locals.pool = mysql.createPool({
@@ -154,6 +158,7 @@ function login(req, res, next){
 function receiveVideo(req,res, next){
     let title = req.body.title;
     let vid = req.body.vid;
+    let exercise = req.body.exercise;
     let video = Buffer.from(vid,"base64");
 
     if (req.session.loggedIn==true){
@@ -161,7 +166,7 @@ function receiveVideo(req,res, next){
         fs.writeFile(path, video, function(err){
                 if(err) throw err;
                 else{
-                    req.app.locals.pool.query("INSERT INTO videos (username, title, path) VALUES ('"+req.session.username+"', '"+title+"','"+path+"');",function(err, result){
+                    req.app.locals.pool.query("INSERT INTO videos (username, title, path, exercise) VALUES ('"+req.session.username+"', '"+title+"','"+path+"','"+exercise+"');",function(err, result){
                         if (err) res.status(200).send("Video Exists!");
                         else res.status(200).send("Video Accepted!");
                     });
@@ -172,6 +177,28 @@ function receiveVideo(req,res, next){
     else res.status(401).send("You are not logged in!");
 
 }
+const { spawn } = require('child_process');
+
+function skeleton(req, res, next) {
+
+const csvFile = req.body.csvFile;
+const exercise = req.body.exercise;
+
+    if (req.session.hasOwnProperty("loggedIn")){
+        const pythonProcess = spawn('python', ['./PITAScoring/scoring_algo.py', csvFile, req.session.username, exercise]);
+
+        req.app.locals.pool.query("UPDATE videos SET imgPath="+pythonProcess.stdout+" WHERE username = "+req.session.username+" AND exercise = "+exercise+";",function(err, result){
+            if (err) res.status(200).send("Video Exists!");
+            else res.status(200).send("Video Accepted!");
+        });
+
+        pythonProcess.stdout.on('data', (data) => {
+            console.log(`Python script output: ${data}`);
+        });
+    }
+    else res.status(200).send("You are not logged in!");
+}
+
 function sendVideo(req,res, next){
     let title = req.query.title;
     if (req.session.hasOwnProperty("loggedIn")){

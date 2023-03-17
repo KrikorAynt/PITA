@@ -12,11 +12,16 @@ public class Video {
 
 	private String title;
 	private String path;
+	private String exercise;
 	
-	public Video(String title,String path) {
+	public Video(String title,String path, String exercise) {
 		 this.title = title;
 		 this.path = path;
-		
+		 this.exercise = exercise;
+	}
+	public Video(String title, String path) {
+		 this.title = title;
+		 this.path = path;
 	}
 	public boolean videoSend() {
 		
@@ -38,7 +43,11 @@ public class Video {
 			    .uri(URI.create(driver.url+"sendVid"))
 			    .header("cookie", driver.cookie)
 			    .header("Content-Type", "application/json")
-			    .method("POST", HttpRequest.BodyPublishers.ofString("{\n\"title\": \""+title+"\",\n\"vid\": \""+video+"\"\n}"))
+			    .method("POST", HttpRequest.BodyPublishers.ofString("{\n" +
+	                    "  \"title\": \""+title+"\",\n" +
+	                    "  \"vid\": \""+video+"\",\n" +
+	                    "  \"exercise\": \""+exercise+"\"\n" +
+	                    "}"))
 			    .build();
 				HttpResponse<String> response;
 				fileIS.close();

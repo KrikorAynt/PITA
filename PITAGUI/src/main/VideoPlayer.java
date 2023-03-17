@@ -28,15 +28,7 @@ public class VideoPlayer {
 		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
 		panel.setLayout(new GridLayout(0,1));
 		//Video Stuff Bellow 
-		JButton upload = new JButton("Upload");
-		upload.addActionListener(new ActionListener() {
-
-	        @Override
-	        public void actionPerformed(ActionEvent event) {
-	        	Video vid = new Video(vidText.getText(),".\\videos");
-	        	vid.videoSend();
-	        }
-	    });
+		
 		String[] vidList = getList().split(",");
 		for(String title : vidList) {
 			if(title.equals("User Has No Videos")) {
@@ -112,8 +104,7 @@ public class VideoPlayer {
 		
 		
 		panel.add(label);
-		panel.add(vidText);
-		panel.add(upload);
+		
 		panel.add(main);
 		
 		frame.add(panel,BorderLayout.LINE_END);

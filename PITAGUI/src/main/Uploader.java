@@ -21,7 +21,9 @@ import javax.swing.SwingConstants;
 
 public class Uploader {
 	private JTextField vidText;
+	private JTextField csvText;
 	private PlayerPanel player;
+	private JTextField exerText;
 	public Uploader() {
 		JFrame frame = new JFrame();
 		JPanel panel = new JPanel();
@@ -36,7 +38,7 @@ public class Uploader {
 	        	//Add recording and converting here
 	        	
 	        	//
-	        	Video vid = new Video(vidText.getText(),".\\videos");
+	        	Video vid = new Video(vidText.getText(),".\\videos",exerText.getText());
 	        	vid.videoSend();
 	        }
 	    });
@@ -85,12 +87,21 @@ public class Uploader {
 
 		
 		JLabel label = new JLabel("VIDEO", SwingConstants.CENTER);
+		JLabel label1 = new JLabel("CSV", SwingConstants.CENTER);
+		JLabel label2 = new JLabel("Exercise", SwingConstants.CENTER);
 		vidText = new JTextField(20);
 		vidText.setBounds(100, 20, 165, 25);
-		
+		csvText = new JTextField(20);
+		csvText.setBounds(100, 20, 165, 25);
+		exerText = new JTextField(20);
+		exerText.setBounds(100, 20, 165, 25);
 		
 		panel.add(label);
 		panel.add(vidText);
+		panel.add(label1);
+		panel.add(csvText);
+		panel.add(label2);
+		panel.add(exerText);
 		panel.add(upload);
 		panel.add(main);
 		
