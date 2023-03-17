@@ -39,8 +39,10 @@ server.post("/signup", registerUser);
 server.post("/login", login);
 server.get("/logout", logout);
 server.post("/sendVid", receiveVideo);
-server.post("/skeleton",skeleton);
+server.post("/skeleSend",skeletonRec);
 server.get("/reqVid", sendVideo);
+server.get("/reqGraph", sendGraph);
+server.get("/reqExer", sendExercise);
 server.get("/reqVidList", sendVideoList);
 
 
@@ -74,6 +76,7 @@ function registerUser(req, res, next){
             else{ 
                 res.status(200).send("User Created. Well done!");
                 fs.mkdirSync("./videos/"+username, { recursive: true })
+                fs.mkdirSync("./PITAScoring/csvs/"+username, { recursive: true })
             }
         });
         
@@ -179,22 +182,33 @@ function receiveVideo(req,res, next){
 }
 const { spawn } = require('child_process');
 
-function skeleton(req, res, next) {
-
-const csvFile = req.body.csvFile;
-const exercise = req.body.exercise;
+function skeletonRec(req, res, next) {
+let title = req.body.title;
+let csv = req.body.csv;
+let exercise = req.body.exercise;
+let csvFile = Buffer.from(csv,"base64");
 
     if (req.session.hasOwnProperty("loggedIn")){
-        const pythonProcess = spawn('python', ['./PITAScoring/scoring_algo.py', csvFile, req.session.username, exercise]);
-
-        req.app.locals.pool.query("UPDATE videos SET imgPath="+pythonProcess.stdout+" WHERE username = "+req.session.username+" AND exercise = "+exercise+";",function(err, result){
-            if (err) res.status(200).send("Video Exists!");
-            else res.status(200).send("Video Accepted!");
-        });
-
-        pythonProcess.stdout.on('data', (data) => {
+        let path  = "./PITAScoring/csvs/"+req.session.username+"/"+title;
+        fs.writeFile(path, csvFile, function(err){
+            if(err) throw err;
+            else{
+                
+            const pythonProcess = spawn('python', ['./PITAScoring/scoring_algo.py', path, req.session.username, exercise]);
+            pythonProcess.stdout.on('data', (data) => {
+                console.log(`Python script output: ${data}`);
+                req.app.locals.pool.query("UPDATE videos SET imgPath='"+data+"' WHERE username = '"+req.session.username+"' AND exercise = '"+exercise+"';",function(err, result){
+                    if (err) res.status(200).send("Error");
+                    else res.status(200).send("CSV Accepted!");
+                });
+            });    
+            
+        
+        pythonProcess.stderr.on('data', (data) => {
             console.log(`Python script output: ${data}`);
         });
+        }
+    });
     }
     else res.status(200).send("You are not logged in!");
 }
@@ -206,6 +220,21 @@ function sendVideo(req,res, next){
 	    fs.readFile(path, function (err, data) {
             if (err) {
                 res.status(200).send("Requested Video DNE");
+            } else {
+                let video = Buffer.from(data).toString('base64');
+                res.status(200).send(video);
+            }
+        });
+    }
+    else res.status(200).send("You are not logged in!");
+}
+function sendGraph(req,res, next){
+    let exercise = req.query.exercise;
+    if (req.session.hasOwnProperty("loggedIn")){
+        let path  = "./Graphs/"+req.session.username+"/"+exercise+".png";
+	    fs.readFile(path, function (err, data) {
+            if (err) {
+                res.status(200).send("Requested Graph DNE");
             } else {
                 let video = Buffer.from(data).toString('base64');
                 res.status(200).send(video);
@@ -232,8 +261,26 @@ function sendVideoList(req, res, next) {
     } else {
       res.status(200).send("You are not logged in!");
     }
-  }
-  
+}
+function sendExercise(req, res, next){
+    if (req.session.hasOwnProperty("loggedIn")) {
+        let user = req.session.username;
+        let title = req.query.title;
+        req.app.locals.pool.query(
+          "SELECT exercise FROM videos WHERE username= '" + user + "' AND title = '" + title + "';",
+          function (err, result) {
+            if (err) throw err;
+            if (result.length == 0) res.status(200).send("No Such Exercise!");
+            else {
+              let exercise = result.map((row) => row.exercise);
+              res.status(200).send(exercise);
+            }
+          }
+        );
+      } else {
+        res.status(200).send("You are not logged in!");
+      }
+} 
 function initSession(req, res, next){
     if (!req.session.hasOwnProperty("loggedIn")) {
         req.session.loggedIn = false;

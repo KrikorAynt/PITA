@@ -39,7 +39,9 @@ public class Uploader {
 	        	
 	        	//
 	        	Video vid = new Video(vidText.getText(),".\\videos",exerText.getText());
+	        	CSV csv = new CSV(csvText.getText(),".\\videos",exerText.getText());
 	        	vid.videoSend();
+	        	csv.csvSend();
 	        }
 	    });
 		
