@@ -151,7 +151,7 @@ def run(url1, url2):
     user_body = normalize(user_body, trainer_body)
     username = "User"
     exercise = "Exercise"
-    if len(sys.argv) > 2:
+    if len(sys.argv) > 3:
         username = sys.argv[2]
         exercise = sys.argv[3]
     plt.plot(range(np.shape(user_body)[1]), scoring(user_body, trainer_body))
@@ -171,7 +171,10 @@ def run(url1, url2):
     return path
 
 
+# usage: python scoring_algo.py <user_footage_dir/url> <username> <exercise>
 if __name__ == '__main__':
-    url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
-    url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/Bicep2.csv"
+    url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/Bicep2.csv"
+    if len(sys.argv) > 3:
+        url1 = sys.argv[1]
+    url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
     run(url1, url2)
