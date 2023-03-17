@@ -2,22 +2,51 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-
-from PITAScoring.body_parts import BodyParts
+import sys
 
 
 # sample code for the scoring algorithm
 
+class BodyParts:
+    spine_base = 0
+    spine_mid = 1
+    neck = 2
+    head = 3
+    shoulder_left = 4
+    elbow_left = 5
+    wrist_left = 6
+    hand_left = 7
+    shoulder_right = 8
+    elbow_right = 9
+    wrist_right = 10
+    hand_right = 11
+    hip_left = 12
+    knee_left = 13
+    ankle_left = 14
+    foot_left = 15
+    hip_right = 16
+    knee_right = 17
+    ankle_right = 18
+    foot_right = 19
+    spine_shoulder = 20
+    hand_tip_left = 21
+    thumb_left = 22
+    hand_tip_right = 23
+    thumb_right = 24
+    limbs = [[head, neck], [neck, spine_shoulder], [spine_shoulder, shoulder_right], [shoulder_right, elbow_right],
+             [elbow_right, wrist_right], [wrist_right, hand_right], [spine_shoulder, shoulder_left],
+             [shoulder_left, elbow_left], [elbow_left, wrist_left], [wrist_left, hand_left],
+             [spine_shoulder, spine_mid], [spine_mid, spine_base], [spine_base, hip_right], [hip_right, knee_right],
+             [knee_right, ankle_right], [spine_base, hip_left], [hip_left, knee_left], [knee_left, ankle_left]]
+
 
 class Body:
-    # passed test
     def __init__(self, joints):
         self.zero_mean_data = None
         self.norm_data = None
         raw = np.array(joints)
         self.joints = np.array(joints.to_numpy().reshape(joints.shape[0], 25, 2))
 
-    # passed test
     def reset_origin(self):
         # Set the head as the origin
         # Normalize the length of the limbs
@@ -69,14 +98,38 @@ def scoring(user_, trainer_):
     score = 100
     sampling_rate = 1
     window_weight = 100 / round(np.shape(user_)[1] / sampling_rate)
-    acceptable_error = 0.05
+    acceptable_error = 0.1
     user_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
-    diff = length_full_set(user_, trainer_)/75
+    diff = length_full_set(user_, trainer_) / 75
     for i in range(0, np.shape(diff)[1], sampling_rate):
         score -= window_weight * np.amax(diff[:, i]) * (1 - acceptable_error)
         scores[i] = score
     return scores
+
+
+def find_start_exercise(user, trainer):
+    # Set a threshold for how similar the positions need to be
+    similarity_threshold = 0.09
+
+    # Get the body parts data for the two users
+    user_data = Body(user).reset_origin()
+    trainer_data = Body(trainer).reset_origin()
+
+    # Make sure the two data sets have the same number of frames
+    user_data, trainer_data = frame_matching(user_data, trainer_data)
+
+    # Compare the positions of each body part at each frame
+    similarities = []
+    for i in range(user_data.shape[1]):
+        similarities.append(np.mean(np.equal(user_data[:, i, :], trainer_data[:, i, :])))
+
+    # Find the first frame where the positions are similar enough
+    for i in range(len(similarities)):
+        if similarities[i] >= similarity_threshold:
+            return i
+
+    # If no similar positions are found, return None
 
 
 def get_data(url):
@@ -89,11 +142,20 @@ def get_data(url):
 def run(url1, url2):
     user = get_data(url1)
     trainer = get_data(url2)
+    start_frame = find_start_exercise(user, trainer)
+    user = user.iloc[start_frame:, :]
+    trainer = trainer.iloc[start_frame:, :]
     user_body = Body(user).reset_origin()
     trainer_body = Body(trainer).reset_origin()
     user_body, trainer_body = frame_matching(user_body, trainer_body)
     user_body = normalize(user_body, trainer_body)
+    username = "User"
+    exercise = "Exercise"
+    if len(sys.argv) > 1:
+        username = sys.argv[1]
+        exercise = sys.argv[2]
     plt.plot(range(np.shape(user_body)[1]), scoring(user_body, trainer_body))
+    plt.title(f"{username}\n{exercise}")
     plt.xlabel("Frame")
     plt.ylabel("Score")
     plt.savefig("output.jpg")
@@ -102,6 +164,6 @@ def run(url1, url2):
 
 
 if __name__ == '__main__':
-    url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/20230216_000032_00_Skeleton.txt"
-    url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/20230314_025958_00_Skeleton.txt"
+    url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
+    url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/Bicep2.csv"
     print(run(url1, url2))
