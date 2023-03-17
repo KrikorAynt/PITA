@@ -177,4 +177,4 @@ if __name__ == '__main__':
     if len(sys.argv) > 3:
         url1 = sys.argv[1]
     url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
-    run(url1, url2)
+    print(run(url1, url2))
