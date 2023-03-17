@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import sys
-
+import os
 
 # sample code for the scoring algorithm
 
@@ -151,21 +151,27 @@ def run(url1, url2):
     user_body = normalize(user_body, trainer_body)
     username = "User"
     exercise = "Exercise"
-    if len(sys.argv) > 1:
-        username = sys.argv[1]
-        exercise = sys.argv[2]
+    if len(sys.argv) > 2:
+        username = sys.argv[2]
+        exercise = sys.argv[3]
     plt.plot(range(np.shape(user_body)[1]), scoring(user_body, trainer_body))
     plt.title(f"{username}\n{exercise}")
     plt.xlabel("Frame")
     plt.ylabel("Score")
     plt.xlim(0, np.shape(user_body)[1])
     plt.ylim(0, 105)
-    plt.savefig("output.jpg")
+
+    path = f"Graphs/{username}"
+    if not os.path.exists(path):
+        os.makedirs(path)
+    path = f"Graphs/{username}/{exercise}.png"
+    plt.savefig(f"Graphs/{username}/{exercise}.png")
     plt.show()
-    return scoring(user_body, trainer_body)
+
+    return path
 
 
 if __name__ == '__main__':
     url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
     url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/Bicep2.csv"
-    print(run(url1, url2))
+    run(url1, url2)
