@@ -29,22 +29,31 @@ public class Uploader {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
 		panel.setLayout(new GridLayout(0,1));
-		//Video Stuff Bellow 
+		//Video Stuff Bellow
 		JButton upload = new JButton("Upload");
 		upload.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
 	        	//Add recording and converting here
-	        	
-	        	//
+						// recording via Kinect Studio (summon cmd to go to program filepath and run KStudio.exe)
+						try {
+				        String kinectStudioPath = "C:\\Program Files\\Microsoft SDKs\\Kinect\\v2.0_1409\\Tools\\KinectStudio\\KStudio.exe";
+				      // Use the ProcessBuilder class to open Command Prompt and execute the Kinect Studio command
+				        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
+				        builder.start();
+				        } catch (IOException e) {
+				            System.out.println("FROM CATCH" + e.toString());
+				        }
+						
+	        	// converting recorded Kinect Studio .xef to usable formats .avi and .txt (laterconverted to .csv)
 	        	Video vid = new Video(vidText.getText(),".\\videos",exerText.getText());
 	        	CSV csv = new CSV(csvText.getText(),".\\videos",exerText.getText());
 	        	vid.videoSend();
 	        	csv.csvSend();
 	        }
 	    });
-		
+
 		JButton main = new JButton("Main Menu");
 		main.addActionListener(new ActionListener() {
 
@@ -55,7 +64,7 @@ public class Uploader {
 	        	frame.setVisible(false);
 	        }
 	    });
-		
+
 		JPanel controlsPane = new JPanel();
         JButton pauseButton = new JButton("Pause");
         controlsPane.add(pauseButton);
@@ -64,7 +73,7 @@ public class Uploader {
         JButton skipButton = new JButton("Skip");
         controlsPane.add(skipButton);
         player = new PlayerPanel();
-		
+
 
         pauseButton.addActionListener(new ActionListener() {
             @Override
@@ -87,7 +96,7 @@ public class Uploader {
             }
         });
 
-		
+
 		JLabel label = new JLabel("VIDEO", SwingConstants.CENTER);
 		JLabel label1 = new JLabel("CSV", SwingConstants.CENTER);
 		JLabel label2 = new JLabel("Exercise", SwingConstants.CENTER);
@@ -97,7 +106,7 @@ public class Uploader {
 		csvText.setBounds(100, 20, 165, 25);
 		exerText = new JTextField(20);
 		exerText.setBounds(100, 20, 165, 25);
-		
+
 		panel.add(label);
 		panel.add(vidText);
 		panel.add(label1);
@@ -106,12 +115,12 @@ public class Uploader {
 		panel.add(exerText);
 		panel.add(upload);
 		panel.add(main);
-		
+
 		frame.add(panel,BorderLayout.LINE_END);
 		frame.add(player,BorderLayout.CENTER);
 		frame.add(controlsPane, BorderLayout.SOUTH);
 		frame.setTitle("PETA Uploader");
-		
+
 		frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -119,15 +128,15 @@ public class Uploader {
                 System.exit(0);
             }
         });
-		
-		
+
+
 		frame.pack();
 		frame.setVisible(true);
 		frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 	}
 
 	public String getList() {
-		  
+
 		try {
 			HttpRequest request = HttpRequest.newBuilder()
 			    .uri(URI.create(driver.url+"reqVidList"))
@@ -142,9 +151,9 @@ public class Uploader {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
-		
+
+
 		return "";
 	}
-	
+
 }
