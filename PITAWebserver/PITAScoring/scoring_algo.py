@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import sys
 import os
 
-
 # sample code for the scoring algorithm
 
 class BodyParts:
@@ -45,6 +44,7 @@ class Body:
     def __init__(self, joints):
         self.zero_mean_data = None
         self.norm_data = None
+        raw = np.array(joints)
         self.joints = np.array(joints.to_numpy().reshape(joints.shape[0], 25, 2))
 
     def reset_origin(self):
@@ -82,6 +82,7 @@ def frame_matching(user_, trainer_):
     if user_.shape[1] > trainer_.shape[1]:
         user_ = user_[:, :trainer_.shape[1]]
     elif user_.shape[1] < trainer_.shape[1]:
+
         trainer_ = trainer_[:, :user_.shape[1]]
     return user_, trainer_
 
@@ -93,18 +94,17 @@ def rescale(user_origin_joint, user_target_joint, trainer_origin_joint, trainer_
 
 
 def scoring(user_, trainer_):
+    scores = np.empty(np.shape(user_)[1])
     score = 100
-    sampling_rate = 10
-    scores = np.array([])
-    acceptable_error = 0.1
-
+    sampling_rate = 1
     window_weight = 100 / round(np.shape(user_)[1] / sampling_rate)
+    acceptable_error = 0.1
     user_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
-    diff = length_full_set(user_, trainer_)
+    diff = length_full_set(user_, trainer_) / 75
     for i in range(0, np.shape(diff)[1], sampling_rate):
-        score -= window_weight * np.sort(diff[:, i])[1] * (1 - acceptable_error)
-        scores = np.append(scores, score)
+        score -= window_weight * np.amax(diff[:, i]) * (1 - acceptable_error)
+        scores[i] = score
     return scores
 
 
@@ -139,49 +139,40 @@ def get_data(url):
     return user_skeleton
 
 
-def run(user_ref, trainer_ref):
-    user = get_data(user_ref)
-    trainer = get_data(trainer_ref)
+def run(url1, url2):
+    user = get_data(url1)
+    trainer = get_data(url2)
     start_frame = find_start_exercise(user, trainer)
     user = user.iloc[start_frame:, :]
     trainer = trainer.iloc[start_frame:, :]
     user_body = Body(user).reset_origin()
     trainer_body = Body(trainer).reset_origin()
     user_body, trainer_body = frame_matching(user_body, trainer_body)
-
-    # plt.scatter(user_body[:, 0, 0], user_body[:, 0, 1], label="non-normalized")
-
     user_body = normalize(user_body, trainer_body)
-
-    # plt.scatter(trainer_body[:, 0, 0], trainer_body[:, 0, 1], label="trainer")
-    # plt.scatter(user_body[:, 0, 0], user_body[:, 0, 1], label="normalized")
-    # plt.legend()
-    # plt.show()
     username = "User"
     exercise = "Exercise"
     if len(sys.argv) > 3:
         username = sys.argv[2]
         exercise = sys.argv[3]
-    score = scoring(user_body, trainer_body)
-    plt.plot(range(np.shape(score)[0]), score)
+    plt.plot(range(np.shape(user_body)[1]), scoring(user_body, trainer_body))
     plt.title(f"{username}\n{exercise}")
-    plt.xlabel("Time")
+    plt.xlabel("Frame")
     plt.ylabel("Score")
-    plt.xlim(0, np.shape(score)[0])
+    plt.xlim(0, np.shape(user_body)[1])
     plt.ylim(0, 105)
 
     path = f"Graphs/{username}"
     if not os.path.exists(path):
         os.makedirs(path)
     path = f"Graphs/{username}/{exercise}.png"
-    plt.savefig(path)
+    plt.savefig(f"Graphs/{username}/{exercise}.png")
     return path
 
 
 # usage: python scoring_algo.py <user_footage_dir/url> <username> <exercise>
 if __name__ == '__main__':
-    url1 = ""
+    url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/Bicep2.csv"
     if len(sys.argv) > 3:
         url1 = sys.argv[1]
-    url2 = "example/sample_data/BicepRefernce.csv"
+    url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
     print(run(url1, url2))
