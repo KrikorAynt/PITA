@@ -24,6 +24,33 @@ public class Uploader {
 	private JTextField csvText;
 	private PlayerPanel player;
 	private JTextField exerText;
+
+	public static List<File> findFilesByExtension(String directoryPath, String extension) {
+		File directory = new File(directoryPath);
+		List<File> matchingFiles = new ArrayList<>();
+
+		if (!directory.isDirectory()) {
+			System.err.println(directoryPath + " is not a directory!");
+			return matchingFiles;
+		}
+
+		File[] files = directory.listFiles();
+		if (files == null) {
+			System.err.println("Error: could not list files in " + directoryPath);
+			return matchingFiles;
+		}
+
+		for (File file : files) {
+			if (file.isFile() && file.getName().toLowerCase().endsWith(extension.toLowerCase())) {
+				matchingFiles.add(file);
+			}
+			else if (file.isDirectory()) {
+				matchingFiles.addAll(findFilesByExtension(file.getAbsolutePath(), extension));
+			}
+		}
+		return matchingFiles;
+	}
+
 	public Uploader() {
 		JFrame frame = new JFrame();
 		JPanel panel = new JPanel();
@@ -36,17 +63,34 @@ public class Uploader {
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
 	        	//Add recording and converting here
-						// recording via Kinect Studio (summon cmd to go to program filepath and run KStudio.exe)
 						try {
-				        String kinectStudioPath = "C:\\Program Files\\Microsoft SDKs\\Kinect\\v2.0_1409\\Tools\\KinectStudio\\KStudio.exe";
-				      // Use the ProcessBuilder class to open Command Prompt and execute the Kinect Studio command
-				        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
-				        builder.start();
+							    // Kinect Studio Automation
+								  // recording via Kinect Studio (summon cmd to go to program filepath and run KStudio.exe)
+							        String kinectStudioPath = "C:\\Program Files\\Microsoft SDKs\\Kinect\\v2.0_1409\\Tools\\KinectStudio\\KStudio.exe";
+							        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
+							        builder.redirectErrorStream(true);
+							        builder.start();
+							/*
+							    // XEF Conversion Automation
+									// converting recorded Kinect Studio .xef to usable formats .avi and .txt (laterconverted to .csv)
+							        String extractPath = "C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
+							        String sampleXEFPath=" C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\bicepCurl_rightOnly.xef";
+							        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s"+sampleXEFPath);
+
+							        String directoryPath = extractPath;  //extractPath will be changed to
+							        String extension = ".xef";
+							        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
+							        for (File file : matchingFiles) {
+							          System.out.println(file.getAbsolutePath());
+							          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe "+file.getAbsolutePath());
+							        }
+							*/
 				        } catch (IOException e) {
 				            System.out.println("FROM CATCH" + e.toString());
 				        }
-						
-	        	// converting recorded Kinect Studio .xef to usable formats .avi and .txt (laterconverted to .csv)
+
+
+
 	        	Video vid = new Video(vidText.getText(),".\\videos",exerText.getText());
 	        	CSV csv = new CSV(csvText.getText(),".\\videos",exerText.getText());
 	        	vid.videoSend();
