@@ -18,6 +18,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
+
 
 public class Uploader {
 	private JTextField vidText;
@@ -63,33 +68,44 @@ public class Uploader {
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
 	        	//Add recording and converting here
-						try {
-							    // Kinect Studio Automation
-								  // recording via Kinect Studio (summon cmd to go to program filepath and run KStudio.exe)
-							        String kinectStudioPath = "C:\\Program Files\\Microsoft SDKs\\Kinect\\v2.0_1409\\Tools\\KinectStudio\\KStudio.exe";
-							        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
-							        builder.redirectErrorStream(true);
-							        builder.start();
-							/*
-							    // XEF Conversion Automation
-									// converting recorded Kinect Studio .xef to usable formats .avi and .txt (laterconverted to .csv)
-							        String extractPath = "C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
-							        String sampleXEFPath=" C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\bicepCurl_rightOnly.xef";
-							        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s"+sampleXEFPath);
+				/*		try {
+					  	//ADD A RECORD BUTTON FOR OPENING KINECT STUDIO
+					    // Kinect Studio Automation
+					        String kinectStudioPath = "C:\\Program Files\\Microsoft SDKs\\Kinect\\v2.0_1409\\Tools\\KinectStudio\\KStudio.exe";
+					        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
+					        builder.redirectErrorStream(true);
+					        builder.start();
+								}catch (IOException e) {
+										System.out.println("FROM CATCH" + e.toString());
+								}
+				*/
+							try{
+						// THE CONVERSION PART STAYS IN UPLOAD BUTTON (20 SECONDS TO COMPLETE CONVERSION)
+				    // XEF Conversion Automation
+					        String extractPath = "C:\\Users\\antho\\OneDrive\\Documents\\GitHub\\PITA\\PITA\\PITAGUI\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
+					        String directoryPath = extractPath+"\\videos";
+					        String extension = ".xef";
+					        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
 
-							        String directoryPath = extractPath;  //extractPath will be changed to
-							        String extension = ".xef";
-							        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
-							        for (File file : matchingFiles) {
-							          System.out.println(file.getAbsolutePath());
-							          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe "+file.getAbsolutePath());
-							        }
-							*/
-				        } catch (IOException e) {
-				            System.out.println("FROM CATCH" + e.toString());
-				        }
+					        File mostRecentFile = findMostRecentFile(directoryPath);
+					        if (mostRecentFile != null) {
+					          System.out.println("Most recent file: " + mostRecentFile.getAbsolutePath());
+					        }
+					        for (File file : matchingFiles) {
+					          System.out.println(file.getAbsolutePath());
+					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
+					          Thread.sleep(20000); // waits for 1 second
+					          if (file.delete()) {
+					            System.out.println("Deleted file: " + file.getAbsolutePath());
+					            } else {
+					            System.out.println("Failed to delete file: " + file.getAbsolutePath());
+					            }
+					        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile);
+					        }
 
-
+					        }catch (IOException e) {
+					            System.out.println("FROM CATCH" + e.toString());
+					        }
 
 	        	Video vid = new Video(vidText.getText(),".\\videos",exerText.getText());
 	        	CSV csv = new CSV(csvText.getText(),".\\videos",exerText.getText());
