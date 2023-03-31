@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 import os
+from sklearn.metrics import mean_squared_error
+
 
 # sample code for the scoring algorithm
 
@@ -40,23 +42,51 @@ class BodyParts:
              [knee_right, ankle_right], [spine_base, hip_left], [hip_left, knee_left], [knee_left, ankle_left]]
 
 
+class Bicep:
+    spine_base = 0  # 0
+    spine_mid = 1  # 1
+    neck = 2  # 2
+    head = 3  # 3
+    shoulder_left = 4  # 4
+    elbow_left = 5  # 5
+    wrist_left = 6  # 6
+    hand_left = 7  # 7
+    shoulder_right = 8  # 8
+    elbow_right = 9  # 9
+    wrist_right = 10  # 10
+    hand_right = 11  # 11
+    hip_left = 12  # 12
+
+    hip_right = 16  # 13
+    spine_shoulder = 20  # 14
+    parts = [spine_base, spine_mid, neck, head, shoulder_left, elbow_left, wrist_left, hand_left, shoulder_right,
+             elbow_right, wrist_right, hand_right, hip_left, hip_right, spine_shoulder]
+    limbs = [[head, neck], [neck, 14], [14, shoulder_right], [shoulder_right, elbow_right],
+             [elbow_right, wrist_right], [wrist_right, hand_right], [14, shoulder_left],
+             [shoulder_left, elbow_left], [elbow_left, wrist_left], [wrist_left, hand_left],
+             [14, spine_mid], [spine_mid, spine_base], [spine_base, 13],
+             [spine_base, hip_left]]
+
+
 class Body:
     def __init__(self, joints):
-        self.zero_mean_data = None
-        self.norm_data = None
-        raw = np.array(joints)
         self.joints = np.array(joints.to_numpy().reshape(joints.shape[0], 25, 2))
 
     def reset_origin(self):
         # Set the head as the origin
-        # Normalize the length of the limbs
         self.joints = np.array([self.joints[:, i, :] - self.joints[:, BodyParts.head, :] for i in range(25)])
         return self.joints
 
 
+def get_bicep(data):
+    for i in reversed([j for j in range(data.shape[0]) if j not in Bicep.parts]):
+        data = np.delete(data, i, 0)
+    return data
+
+
 def normalize(user, trainer):
     # Normalize the length of the limbs
-    for i in BodyParts.limbs:
+    for i in Bicep.limbs:
         user[i[1], :, :] = rescale(user[i[0], :, :], user[i[1], :, :], trainer[i[0], :, :], trainer[i[1], :, :])
     return user
 
@@ -82,7 +112,6 @@ def frame_matching(user_, trainer_):
     if user_.shape[1] > trainer_.shape[1]:
         user_ = user_[:, :trainer_.shape[1]]
     elif user_.shape[1] < trainer_.shape[1]:
-
         trainer_ = trainer_[:, :user_.shape[1]]
     return user_, trainer_
 
@@ -93,18 +122,22 @@ def rescale(user_origin_joint, user_target_joint, trainer_origin_joint, trainer_
     return np.multiply((1 - coef).reshape((coef.shape[0], 1)), user_origin_joint) + np.multiply(coef, user_target_joint)
 
 
-def scoring(user_, trainer_):
-    scores = np.empty(np.shape(user_)[1])
+def pose_score(user_, trainer_):
     score = 100
-    sampling_rate = 1
-    window_weight = 100 / round(np.shape(user_)[1] / sampling_rate)
+    sampling_rate = 5
+    scores = np.array([])
     acceptable_error = 0.1
+
+    window_weight = round(np.shape(user_)[1] / sampling_rate)
     user_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
-    diff = length_full_set(user_, trainer_) / 75
-    for i in range(0, np.shape(diff)[1], sampling_rate):
-        score -= window_weight * np.amax(diff[:, i]) * (1 - acceptable_error)
-        scores[i] = score
+    search_range = 10
+
+    for i in range(0, np.shape(user_)[1], sampling_rate):
+        diff = np.array([mean_squared_error(trainer_[:, i, :], user_[:, j, :]) for j in
+                         range(max(i - search_range, 0), min(i + search_range, np.shape(user_)[1]))])
+        score -= window_weight * np.sort(diff)[1] * (1 - acceptable_error) / 4
+        scores = np.append(scores, score)
     return scores
 
 
@@ -139,40 +172,51 @@ def get_data(url):
     return user_skeleton
 
 
-def run(url1, url2):
-    user = get_data(url1)
-    trainer = get_data(url2)
+def run(user_ref, trainer_ref):
+    user = get_data(user_ref)
+    trainer = get_data(trainer_ref)
     start_frame = find_start_exercise(user, trainer)
     user = user.iloc[start_frame:, :]
     trainer = trainer.iloc[start_frame:, :]
     user_body = Body(user).reset_origin()
     trainer_body = Body(trainer).reset_origin()
     user_body, trainer_body = frame_matching(user_body, trainer_body)
+    user_body = get_bicep(user_body)
+    trainer_body = get_bicep(trainer_body)
+
+    # plt.scatter(user_body[:, 0, 0], user_body[:, 0, 1], label="non-normalized")
+
     user_body = normalize(user_body, trainer_body)
+
+    # plt.scatter(trainer_body[:, 0, 0], trainer_body[:, 0, 1], label="trainer")
+    # plt.scatter(user_body[:, 0, 0], user_body[:, 0, 1], label="normalized")
+    # plt.legend()
+    # plt.show()
     username = "User"
     exercise = "Exercise"
     if len(sys.argv) > 3:
         username = sys.argv[2]
         exercise = sys.argv[3]
-    plt.plot(range(np.shape(user_body)[1]), scoring(user_body, trainer_body))
+    score = pose_score(user_body, trainer_body)
+    plt.plot(range(np.shape(score)[0]), score)
     plt.title(f"{username}\n{exercise}")
-    plt.xlabel("Frame")
+    plt.xlabel("Time")
     plt.ylabel("Score")
-    plt.xlim(0, np.shape(user_body)[1])
+    plt.xlim(0, np.shape(score)[0])
     plt.ylim(0, 105)
 
     path = f"Graphs/{username}"
     if not os.path.exists(path):
         os.makedirs(path)
     path = f"Graphs/{username}/{exercise}.png"
-    plt.savefig(f"Graphs/{username}/{exercise}.png")
+    plt.savefig(path)
     return path
 
 
 # usage: python scoring_algo.py <user_footage_dir/url> <username> <exercise>
 if __name__ == '__main__':
-    url1 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/Bicep2.csv"
+    url1 = ""
     if len(sys.argv) > 3:
         url1 = sys.argv[1]
-    url2 = "https://raw.githubusercontent.com/ramzes-hk/datadump/main/BicepRefernce.csv"
+    url2 = "example/sample_data/BicepRefernce.csv"
     print(run(url1, url2))
