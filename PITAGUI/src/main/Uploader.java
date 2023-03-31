@@ -115,23 +115,25 @@ public class Uploader {
 					        for (File file : matchingFiles) {
 					          System.out.println(file.getAbsolutePath());
 					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
-					          Thread.sleep(20000); // waits for 1 second
+					          /*Thread.sleep(20000); // waits for 1 second
 					          if (file.delete()) {
 					            System.out.println("Deleted file: " + file.getAbsolutePath());
 					            } else {
 					            System.out.println("Failed to delete file: " + file.getAbsolutePath());
-					            }
+										}*/
 					        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile);
 					        }
-
 					        }catch (IOException e) {
 					            System.out.println("FROM CATCH" + e.toString());
-					        }
-
-	        	Video vid = new Video(vidText.getText(),".\\videos",exerText.getText());
-	        	CSV csv = new CSV(csvText.getText(),".\\videos",exerText.getText());
-	        	vid.videoSend();
-	        	csv.csvSend();
+					        } /*catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}*/
+									// .\\videos
+									Video vid = new Video(vidText.getText(),"KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",exerText.getText());
+									CSV csv = new CSV(csvText.getText(),"KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",exerText.getText());
+									vid.videoSend();
+									csv.csvSend();
 	        }
 	    });
 
