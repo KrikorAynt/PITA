@@ -56,6 +56,27 @@ public class Uploader {
 		return matchingFiles;
 	}
 
+  public static File findMostRecentFile(String directoryPath) {
+    File directory = new File(directoryPath);
+    File[] files = directory.listFiles();
+    if (files == null || files.length == 0) {
+      System.err.println("No files found in " + directoryPath);
+      return null;
+    }
+
+    return getMostRecentFile(files);
+  }
+
+  private static File getMostRecentFile(File[] files) {
+    File mostRecent = files[0];
+    for (int i = 1; i < files.length; i++) {
+      if (files[i].lastModified() > mostRecent.lastModified()) {
+        mostRecent = files[i];
+      }
+    }
+    return mostRecent;
+  }
+
 	public Uploader() {
 		JFrame frame = new JFrame();
 		JPanel panel = new JPanel();
