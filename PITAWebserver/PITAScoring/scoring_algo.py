@@ -106,9 +106,6 @@ def coefficient(user_joint1, user_joint2, trainer_joint1, trainer_joint2):
 
 
 def frame_matching(user_, trainer_):
-    frame_threshold = 20
-    if user_.shape[1] <= frame_threshold or trainer_.shape[1] <= frame_threshold:
-        return user_, trainer_
     if user_.shape[1] > trainer_.shape[1]:
         user_ = user_[:, :trainer_.shape[1]]
     elif user_.shape[1] < trainer_.shape[1]:
@@ -124,20 +121,32 @@ def rescale(user_origin_joint, user_target_joint, trainer_origin_joint, trainer_
 
 def pose_score(user_, trainer_):
     score = 100
-    sampling_rate = 10
+    sampling_rate = 14
     scores = np.array([])
-    acceptable_error = 0.05
+    acceptable_error = 0
 
     window_weight = 100 / (np.shape(user_)[1] / sampling_rate)
     user_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     user_ = user_[np.r_[4:12], :, :]
     trainer_ = trainer_[np.r_[4:12], :, :]
+    search_range = 100
     for i in range(0, np.shape(user_)[1], sampling_rate):
         # 4 to 12 are the indexes of shoulders, elbows, wrists and hands
-        score -= window_weight * mean_squared_error(trainer_[:, i, :], user_[:, i, :]) * (
-                    1 - acceptable_error) / 4
+        diff = np.array([mean_squared_error(trainer_[:, i, :], user_[:, j, :], squared=False) for j in
+                         range(min(i + search_range, np.shape(user_)[1]))])
+        for i, val in enumerate(diff):
+            if val == 0:
+                diff[i] = 0.1
+        score = 100 - window_weight * np.sort(diff)[0] * (1 - acceptable_error)
+        # score -= window_weight * mean_squared_error(trainer_[:, i, :], user_[:, i, :]) * (
+        #             1 - acceptable_error) / 4
         scores = np.append(scores, score)
+
+    scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores)) * 100
+    for i, val in enumerate(scores):
+        if val == 0:
+            scores = np.delete(scores, i)
     return scores, np.mean(scores)
 
 
@@ -183,14 +192,14 @@ def run(user_ref, trainer_ref):
     user_body, trainer_body = frame_matching(user_body, trainer_body)
     user_body = get_bicep(user_body)
     trainer_body = get_bicep(trainer_body)
-    user_body = normalize(user_body, trainer_body)
+    # user_body = normalize(user_body, trainer_body)
     username = "User"
     exercise = "Exercise"
     if len(sys.argv) > 3:
         username = sys.argv[2]
         exercise = sys.argv[3]
     score, final_score = pose_score(user_body, trainer_body)
-    plt.plot(range(np.shape(score)[0]), score)
+    plt.scatter(range(np.shape(score)[0]), score)
     plt.title(f"{username} {exercise}\nFinal Score: {max(0, final_score):.1f}")
     plt.xlabel("Time")
     plt.ylabel("Score")
@@ -211,12 +220,10 @@ if __name__ == '__main__':
     if len(sys.argv) > 3:
         url1 = sys.argv[1]
     url2 = "example/sample_data/BicepRefernce.txt"
-    if "bicep" in sys.argv[3]:
-        url2 = "example/sample_data/BicepRefernce.txt"
-    elif "crunches" in sys.argv[3]:
+    if "crunches" in sys.argv[3]:
         url2 = "example/sample_data/reference_Skeleton.txt"
     elif "lat_raise" in sys.argv[3]:
-        url2 = "example/sample_data/lat_raise_ref.txt"
+        url2 = "example/sample_data/lat_raise_Skeleton.txt"
     elif "bicep_curl" in sys.argv[3]:
-        url2 = "example/sample_data/video4_Skeleton.txt"
+        url2 = "example/sample_data/bicep_curl_G_Skeleton.txt"
     print(run(url1, url2))
