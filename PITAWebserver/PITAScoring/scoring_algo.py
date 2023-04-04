@@ -126,16 +126,19 @@ def pose_score(user_, trainer_):
     score = 100
     sampling_rate = 10
     scores = np.array([])
-    acceptable_error = 0.1
+    acceptable_error = 0.05
 
-    window_weight = 100/(np.shape(user_)[1] / sampling_rate)
+    window_weight = 100 / (np.shape(user_)[1] / sampling_rate)
     user_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
+    user_ = user_[np.r_[4:12], :, :]
+    trainer_ = trainer_[np.r_[4:12], :, :]
     for i in range(0, np.shape(user_)[1], sampling_rate):
         # 4 to 12 are the indexes of shoulders, elbows, wrists and hands
-        score -= window_weight * mean_squared_error(trainer_[4:12, i, :], user_[4:12, i, :]) * (1 - acceptable_error)/4
+        score -= window_weight * mean_squared_error(trainer_[:, i, :], user_[:, i, :]) * (
+                    1 - acceptable_error) / 4
         scores = np.append(scores, score)
-    return scores
+    return scores, np.mean(scores)
 
 
 def find_start_exercise(user, trainer):
@@ -180,23 +183,15 @@ def run(user_ref, trainer_ref):
     user_body, trainer_body = frame_matching(user_body, trainer_body)
     user_body = get_bicep(user_body)
     trainer_body = get_bicep(trainer_body)
-
-    # plt.scatter(user_body[:, 0, 0], user_body[:, 0, 1], label="non-normalized")
-
     user_body = normalize(user_body, trainer_body)
-
-    # plt.scatter(trainer_body[:, 0, 0], trainer_body[:, 0, 1], label="trainer")
-    # plt.scatter(user_body[:, 0, 0], user_body[:, 0, 1], label="normalized")
-    # plt.legend()
-    # plt.show()
     username = "User"
     exercise = "Exercise"
     if len(sys.argv) > 3:
         username = sys.argv[2]
         exercise = sys.argv[3]
-    score = pose_score(user_body, trainer_body)
+    score, final_score = pose_score(user_body, trainer_body)
     plt.plot(range(np.shape(score)[0]), score)
-    plt.title(f"{username}\n{exercise}")
+    plt.title(f"{username} {exercise}\nFinal Score: {max(0, final_score):.1f}")
     plt.xlabel("Time")
     plt.ylabel("Score")
     plt.xlim(0, np.shape(score)[0])
@@ -220,4 +215,8 @@ if __name__ == '__main__':
         url2 = "example/sample_data/BicepRefernce.txt"
     elif "crunches" in sys.argv[3]:
         url2 = "example/sample_data/reference_Skeleton.txt"
+    elif "lat_raise" in sys.argv[3]:
+        url2 = "example/sample_data/lat_raise_ref.txt"
+    elif "bicep_curl" in sys.argv[3]:
+        url2 = "example/sample_data/video4_Skeleton.txt"
     print(run(url1, url2))
