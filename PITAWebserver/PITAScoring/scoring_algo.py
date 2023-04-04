@@ -124,19 +124,16 @@ def rescale(user_origin_joint, user_target_joint, trainer_origin_joint, trainer_
 
 def pose_score(user_, trainer_):
     score = 100
-    sampling_rate = 5
+    sampling_rate = 10
     scores = np.array([])
     acceptable_error = 0.1
 
-    window_weight = round(np.shape(user_)[1] / sampling_rate)
+    window_weight = 100/(np.shape(user_)[1] / sampling_rate)
     user_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
-    search_range = 10
-
     for i in range(0, np.shape(user_)[1], sampling_rate):
-        diff = np.array([mean_squared_error(trainer_[:, i, :], user_[:, j, :]) for j in
-                         range(max(i - search_range, 0), min(i + search_range, np.shape(user_)[1]))])
-        score -= window_weight * np.sort(diff)[1] * (1 - acceptable_error) / 4
+        # 4 to 12 are the indexes of shoulders, elbows, wrists and hands
+        score -= window_weight * mean_squared_error(trainer_[4:12, i, :], user_[4:12, i, :]) * (1 - acceptable_error)/4
         scores = np.append(scores, score)
     return scores
 
@@ -218,5 +215,9 @@ if __name__ == '__main__':
     url1 = ""
     if len(sys.argv) > 3:
         url1 = sys.argv[1]
-    url2 = "example/sample_data/BicepRefernce.csv"
+    url2 = "example/sample_data/BicepRefernce.txt"
+    if "bicep" in sys.argv[3]:
+        url2 = "example/sample_data/BicepRefernce.txt"
+    elif "crunches" in sys.argv[3]:
+        url2 = "example/sample_data/reference_Skeleton.txt"
     print(run(url1, url2))
