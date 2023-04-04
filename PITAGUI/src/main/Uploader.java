@@ -83,15 +83,15 @@ public class Uploader {
 		JPanel panel = new JPanel();
 		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
 		panel.setLayout(new GridLayout(0,1));
-		//Video Stuff Bellow
-		JButton upload = new JButton("Upload");
+
+		//Video Stuff Below
+		JButton upload = new JButton("Record");
 		upload.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
 	        	//Add recording and converting here
-				/*		try {
-					  	//ADD A RECORD BUTTON FOR OPENING KINECT STUDIO
+						try {
 					    // Kinect Studio Automation
 					        String kinectStudioPath = "C:\\Program Files\\Microsoft SDKs\\Kinect\\v2.0_1409\\Tools\\KinectStudio\\KStudio.exe";
 					        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
@@ -100,34 +100,46 @@ public class Uploader {
 								}catch (IOException e) {
 										System.out.println("FROM CATCH" + e.toString());
 								}
-				*/
-							try{
-									// THE CONVERSION PART STAYS IN UPLOAD BUTTON (20 SECONDS TO COMPLETE CONVERSION)
-				    			// XEF Conversion Automation
-					        String extractPath = "C:\\Users\\antho\\OneDrive\\Documents\\GitHub\\PITA\\PITA\\PITAGUI\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
-					        String directoryPath = extractPath+"\\videos";
-					        String extension = ".xef";
-					        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
+							}
+		});
 
-					        //File mostRecentFile = findMostRecentFile(directoryPath);
-					        //if (mostRecentFile != null) {
-					        //  System.out.println("Most recent file: " + mostRecentFile.getAbsolutePath());
-					        //}
-									
-					        for (File file : matchingFiles) {
-					          System.out.println(file.getAbsolutePath());
-					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
-					          Thread.sleep(20000); // waits for 20 second
-					          if (file.delete()) {
-					            System.out.println("Deleted file: " + file.getAbsolutePath());
-					            } else {
-					            System.out.println("Failed to delete file: " + file.getAbsolutePath());
-										}
-					        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile);
-					        }
-					        }catch (IOException e) {
-					            System.out.println("FROM CATCH" + e.toString());
-					        }
+
+		JButton upload = new JButton("Upload");
+		upload.addActionListener(new ActionListener() {
+
+	        @Override
+	        public void actionPerformed(ActionEvent event) {
+        	//Add recording and converting here
+						try{
+								// THE CONVERSION PART STAYS IN UPLOAD BUTTON (20 SECONDS TO COMPLETE CONVERSION)
+			    			// XEF Conversion Automation
+				        String extractPath = "C:\\Users\\antho\\OneDrive\\Documents\\GitHub\\PITA\\PITA\\PITAGUI\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
+				        String directoryPath = extractPath+"\\videos";
+				        String extension = ".xef";
+				        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
+
+				        //File mostRecentFile = findMostRecentFile(directoryPath);
+				        //if (mostRecentFile != null) {
+				        //  System.out.println("Most recent file: " + mostRecentFile.getAbsolutePath());
+				        //}
+
+				        for (File file : matchingFiles) {
+				          System.out.println(file.getAbsolutePath());
+				          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
+				          Thread.sleep(20000); // waits for 20 second
+				          if (file.delete()) {
+				            System.out.println("Deleted file: " + file.getAbsolutePath());
+				            } else {
+				            System.out.println("Failed to delete file: " + file.getAbsolutePath());
+									}
+				        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile);
+				        }
+				        }catch (IOException e) {
+				            System.out.println("FROM CATCH" + e.toString());
+
+				        }catch(InterruptedException e) {
+				        	e.printStackTrace();
+				        }
 									// .\\videos
 									Video vid = new Video(vidText.getText(),"KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",exerText.getText());
 									CSV csv = new CSV(csvText.getText(),"KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",exerText.getText());
