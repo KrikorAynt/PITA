@@ -120,8 +120,7 @@ def rescale(user_origin_joint, user_target_joint, trainer_origin_joint, trainer_
 
 
 def pose_score(user_, trainer_):
-    score = 100
-    sampling_rate = 14
+    sampling_rate = 10
     scores = np.array([])
     acceptable_error = 0
 
@@ -130,17 +129,15 @@ def pose_score(user_, trainer_):
     trainer_[BodyParts.head, :, :] = np.ones([np.shape(trainer_)[1], 2])
     user_ = user_[np.r_[4:12], :, :]
     trainer_ = trainer_[np.r_[4:12], :, :]
-    search_range = 100
+    search_range = 120
     for i in range(0, np.shape(user_)[1], sampling_rate):
         # 4 to 12 are the indexes of shoulders, elbows, wrists and hands
         diff = np.array([mean_squared_error(trainer_[:, i, :], user_[:, j, :], squared=False) for j in
                          range(min(i + search_range, np.shape(user_)[1]))])
-        for i, val in enumerate(diff):
+        for j, val in enumerate(diff):
             if val == 0:
-                diff[i] = 0.1
+                diff[j] = 0.1
         score = 100 - window_weight * np.sort(diff)[0] * (1 - acceptable_error)
-        # score -= window_weight * mean_squared_error(trainer_[:, i, :], user_[:, i, :]) * (
-        #             1 - acceptable_error) / 4
         scores = np.append(scores, score)
 
     scores = (scores - np.min(scores)) / (np.max(scores) - np.min(scores)) * 100
@@ -216,14 +213,15 @@ def run(user_ref, trainer_ref):
 
 # usage: python scoring_algo.py <user_footage_dir/url> <username> <exercise>
 if __name__ == '__main__':
-    url1 = ""
-    if len(sys.argv) > 3:
-        url1 = sys.argv[1]
-    url2 = "example/sample_data/BicepRefernce.txt"
-    if "crunches" in sys.argv[3]:
-        url2 = "example/sample_data/reference_Skeleton.txt"
+    if len(sys.argv) < 4:
+        raise ValueError("Invalid arguments")
+    url1 = sys.argv[1]
+    if "bicep_curl" in sys.argv[3]:
+        url2 = "example/sample_data/bicep_curl_ref.txt"
     elif "lat_raise" in sys.argv[3]:
-        url2 = "example/sample_data/lat_raise_Skeleton.txt"
-    elif "bicep_curl" in sys.argv[3]:
-        url2 = "example/sample_data/bicep_curl_G_Skeleton.txt"
+        url2 = "example/sample_data/lat_raise_ref.txt"
+    elif "shoulder_press" in sys.argv[3]:
+        url2 = "example/sample_data/shoulder_press_ref.txt"
+    else:
+        raise ValueError("Invalid exercise")
     print(run(url1, url2))
