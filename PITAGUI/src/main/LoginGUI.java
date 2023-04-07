@@ -1,12 +1,18 @@
 package main;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
-import java.io.IOException;  
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -18,9 +24,41 @@ public class LoginGUI{
 	private JTextField userText;
 	private JPasswordField passText;
 	protected JLabel infoLabel = new JLabel("", SwingConstants.CENTER);
+	private Image backgroundImage;
 	
 	public LoginGUI() {
 		JFrame frame = new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle("PITA Login");
+		frame.setPreferredSize(new Dimension(600, 400));
+		
+		try {
+			backgroundImage = ImageIO.read(new File("C:/Users/Alex/Documents/GitHub/PITA/PITAGUI/src/main/pita.jpg"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		JPanel contentPane = new JPanel() {
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				g.drawImage(backgroundImage, 0, 0, this);
+			}
+		};
+		
+		contentPane.setLayout(new BorderLayout());
+		
+		JPanel panel = new JPanel();
+		panel.setOpaque(false);
+		panel.setBorder(BorderFactory.createEmptyBorder(50, 200, 50, 200));
+		panel.setLayout(new GridLayout(0,1));
+		
+		JLabel label = new JLabel("LOGIN HERE", SwingConstants.CENTER);
+		label.setForeground(Color.BLACK);
+		label.setFont(label.getFont().deriveFont(20f));
+		
+		userText = new JTextField(20);
+		passText = new JPasswordField();
 		
 		JButton button = new JButton("Login");
 		button.addActionListener(new ActionListener() {
@@ -58,32 +96,23 @@ public class LoginGUI{
 	        }
 	    });
 		
-		JLabel label = new JLabel("LOGIN HERE", SwingConstants.CENTER);
-		userText = new JTextField(20);
-		userText.setBounds(100, 20, 165, 25);
-		passText = new JPasswordField();
-		passText.setBounds(100, 20, 165, 25);
-		
-		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
-		panel.setLayout(new GridLayout(0,1));
 		panel.add(label);
+		panel.add(new JLabel("Username:"));
 		panel.add(userText);
+		panel.add(new JLabel("Password:"));
 		panel.add(passText);
 		panel.add(button);
 		panel.add(signUp);
 		panel.add(infoLabel);
 		
+		contentPane.add(panel, BorderLayout.CENTER);
 		
-		frame.add(panel,BorderLayout.CENTER);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle("PETA Login");
-		frame.getRootPane().setDefaultButton(button);
-		
-		
+		frame.setContentPane(contentPane);
 		frame.pack();
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
+
 	public boolean login(String username, String password) {
 		  
 		try {
