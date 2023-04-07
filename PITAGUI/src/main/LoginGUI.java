@@ -33,7 +33,7 @@ public class LoginGUI{
 		frame.setPreferredSize(new Dimension(600, 400));
 		
 		try {
-			backgroundImage = ImageIO.read(new File("C:/Users/Alex/Documents/GitHub/PITA/PITAGUI/src/main/pita.jpg"));
+			backgroundImage = ImageIO.read(new File("/pita.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
