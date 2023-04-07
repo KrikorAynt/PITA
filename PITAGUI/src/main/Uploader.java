@@ -85,8 +85,8 @@ public class Uploader {
 		panel.setLayout(new GridLayout(0,1));
 
 		//Video Stuff Below
-		JButton upload = new JButton("Record");
-		upload.addActionListener(new ActionListener() {
+		JButton record = new JButton("Record");
+		record.addActionListener(new ActionListener() {
 
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
