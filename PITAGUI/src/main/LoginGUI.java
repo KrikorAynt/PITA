@@ -33,7 +33,7 @@ public class LoginGUI{
 		frame.setPreferredSize(new Dimension(600, 400));
 		
 		try {
-			backgroundImage = ImageIO.read(new File("/pita.jpg"));
+			backgroundImage = ImageIO.read(new File(".\\pita.jpg"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -110,7 +110,9 @@ public class LoginGUI{
 		frame.setContentPane(contentPane);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
+		frame.getRootPane().setDefaultButton(button);
 		frame.setVisible(true);
+		
 	}
 
 	public boolean login(String username, String password) {

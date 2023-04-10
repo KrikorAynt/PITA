@@ -13,6 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -27,8 +28,10 @@ import java.util.ArrayList;
 public class Uploader {
 	private JTextField vidText;
 	private JTextField csvText;
-	private PlayerPanel player;
 	private JTextField exerText;
+	private JComboBox<String> exerDrop;
+	
+    
 
 	public static List<File> findFilesByExtension(String directoryPath, String extension) {
 		File directory = new File(directoryPath);
@@ -56,7 +59,7 @@ public class Uploader {
 		return matchingFiles;
 	}
 
-/*
+
   public static File findMostRecentFile(String directoryPath) {
     File directory = new File(directoryPath);
     File[] files = directory.listFiles();
@@ -77,7 +80,7 @@ public class Uploader {
     }
     return mostRecent;
   }
-*/
+
 	public Uploader() {
 		JFrame frame = new JFrame();
 		JPanel panel = new JPanel();
@@ -113,26 +116,33 @@ public class Uploader {
 						try{
 								// THE CONVERSION PART STAYS IN UPLOAD BUTTON (20 SECONDS TO COMPLETE CONVERSION)
 			    			// XEF Conversion Automation
-				        String extractPath = "C:\\Users\\antho\\OneDrive\\Documents\\GitHub\\PITA\\PITA\\PITAGUI\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
-				        String directoryPath = extractPath+"\\videos";
-				        String extension = ".xef";
-				        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
-
-				        //File mostRecentFile = findMostRecentFile(directoryPath);
-				        //if (mostRecentFile != null) {
-				        //  System.out.println("Most recent file: " + mostRecentFile.getAbsolutePath());
-				        //}
-
-				        for (File file : matchingFiles) {
-				          System.out.println(file.getAbsolutePath());
-				          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
-				          Thread.sleep(20000); // waits for 20 second
-				          if (file.delete()) {
-				            System.out.println("Deleted file: " + file.getAbsolutePath());
-				            } else {
-				            System.out.println("Failed to delete file: " + file.getAbsolutePath());
-									}
-				        //Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile);
+					        String extractPath = "C:\\Users\\antho\\OneDrive\\Documents\\GitHub\\PITA\\PITA\\PITAGUI\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
+					        String directoryPath = extractPath+"\\videos";
+					        String extension = ".xef";
+					        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
+	
+					        File mostRecentFile = findMostRecentFile(directoryPath);
+					        if (mostRecentFile != null) {
+					          System.out.println("Most recent file: " + mostRecentFile.getAbsolutePath());
+					        }
+	
+					        for (File file : matchingFiles) {
+					          System.out.println(file.getAbsolutePath());
+					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
+					          Thread.sleep(20000); // waits for 20 second
+					          if (file.delete()) {
+					            System.out.println("Deleted file: " + file.getAbsolutePath());
+					            } else {
+					            System.out.println("Failed to delete file: " + file.getAbsolutePath());
+										}
+					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile.getAbsolutePath());
+					          
+					          String fileName = mostRecentFile.getName();
+					          fileName = fileName.substring(0, fileName.lastIndexOf('.'));
+					          Video vid = new Video(fileName+"_Video.avi",".\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",(String)exerDrop.getSelectedItem());
+							  CSV csv = new CSV(fileName+"_Skeleton.txt",".\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",(String)exerDrop.getSelectedItem());
+							  vid.videoSend();
+							  csv.csvSend();
 				        }
 				        }catch (IOException e) {
 				            System.out.println("FROM CATCH" + e.toString());
@@ -140,11 +150,9 @@ public class Uploader {
 				        }catch(InterruptedException e) {
 				        	e.printStackTrace();
 				        }
-									// .\\videos
-									Video vid = new Video(vidText.getText(),"KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",exerText.getText());
-									CSV csv = new CSV(csvText.getText(),"KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",exerText.getText());
-									vid.videoSend();
-									csv.csvSend();
+						// .\\videos
+						
+						
 	        }
 	    });
 
@@ -154,71 +162,34 @@ public class Uploader {
 	        @Override
 	        public void actionPerformed(ActionEvent event) {
 	        	driver.mainMenu.open();
-	        	player.close();
 	        	frame.setVisible(false);
 	        }
 	    });
 
-		JPanel controlsPane = new JPanel();
-        JButton pauseButton = new JButton("Pause");
-        controlsPane.add(pauseButton);
-        JButton rewindButton = new JButton("Rewind");
-        controlsPane.add(rewindButton);
-        JButton skipButton = new JButton("Skip");
-        controlsPane.add(skipButton);
-        player = new PlayerPanel();
+		
 
-
-        pauseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                player.player.controls().pause();
-            }
-        });
-
-        rewindButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	player.player.controls().skipTime(-10000);
-            }
-        });
-
-        skipButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	player.player.controls().skipTime(10000);
-            }
-        });
-
-
-		JLabel label = new JLabel("VIDEO", SwingConstants.CENTER);
-		JLabel label1 = new JLabel("CSV", SwingConstants.CENTER);
+        
+        exerDrop = new JComboBox<>(getExerList().split(","));
+        
 		JLabel label2 = new JLabel("Exercise", SwingConstants.CENTER);
 		vidText = new JTextField(20);
 		vidText.setBounds(100, 20, 165, 25);
 		csvText = new JTextField(20);
 		csvText.setBounds(100, 20, 165, 25);
-		exerText = new JTextField(20);
-		exerText.setBounds(100, 20, 165, 25);
-
-		panel.add(label);
-		panel.add(vidText);
-		panel.add(label1);
-		panel.add(csvText);
+		
+		
+		panel.add(record);
 		panel.add(label2);
-		panel.add(exerText);
+		panel.add(exerDrop);
 		panel.add(upload);
 		panel.add(main);
 
 		frame.add(panel,BorderLayout.LINE_END);
-		frame.add(player,BorderLayout.CENTER);
-		frame.add(controlsPane, BorderLayout.SOUTH);
 		frame.setTitle("PETA Uploader");
 
 		frame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
-                player.close();
                 System.exit(0);
             }
         });
@@ -226,14 +197,13 @@ public class Uploader {
 
 		frame.pack();
 		frame.setVisible(true);
-		frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 	}
 
-	public String getList() {
+	public String getExerList() {
 
 		try {
 			HttpRequest request = HttpRequest.newBuilder()
-			    .uri(URI.create(driver.url+"reqVidList"))
+			    .uri(URI.create(driver.url+"reqExerList"))
 			    .header("cookie", driver.cookie)
 			    .method("GET", HttpRequest.BodyPublishers.noBody())
 			    .build();

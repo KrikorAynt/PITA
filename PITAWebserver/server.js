@@ -44,7 +44,7 @@ server.get("/reqVid", sendVideo);
 server.get("/reqGraph", sendGraph);
 server.get("/reqExer", sendExercise);
 server.get("/reqVidList", sendVideoList);
-
+server.get("/reqExerList", sendExerList);
 
 http.createServer(server).listen(5000);
 
@@ -255,6 +255,25 @@ function sendVideoList(req, res, next) {
             let titles = result.map((row) => row.title);
             let titlesString = titles.join(",");
             res.status(200).send(titlesString);
+          }
+        }
+      );
+    } else {
+      res.status(200).send("You are not logged in!");
+    }
+}
+function sendExerList(req, res, next) {
+    if (req.session.hasOwnProperty("loggedIn")) {
+      let user = req.session.username;
+      req.app.locals.pool.query(
+        "SELECT exercise FROM videos WHERE username= 'admin';",
+        function (err, result) {
+          if (err) throw err;
+          if (result.length == 0) res.status(200).send("There are no exercises");
+          else {
+            let exercises = result.map((row) => row.exercise);
+            let exerciseString = exercises.join(",");
+            res.status(200).send(exerciseString);
           }
         }
       );
