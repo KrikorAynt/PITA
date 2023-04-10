@@ -50,7 +50,7 @@ public class LoginGUI{
         
         JPanel panel = new JPanel();
         panel.setOpaque(false);
-        panel.setBorder(BorderFactory.createEmptyBorder(00, 400, 00, 00));
+        panel.setBorder(BorderFactory.createEmptyBorder(00, 400, 00, 10));
         panel.setLayout(new GridLayout(0,1));
         
         JLabel label = new JLabel("LOGIN HERE", SwingConstants.CENTER);
@@ -58,12 +58,14 @@ public class LoginGUI{
         label.setFont(label.getFont().deriveFont(20f));
         
         userText = new JTextField();
-        userText.setPreferredSize(new Dimension(250, 30));
+        userText.setPreferredSize(new Dimension(100, 20));
         
         passText = new JPasswordField();
-        passText.setPreferredSize(new Dimension(250, 30));
+        passText.setPreferredSize(new Dimension(100, 20));
         
         JButton button = new JButton("Login");
+       // button.setPreferredSize(new Dimension(80, 30));
+        
         button.addActionListener(new ActionListener() {
 
             @Override
@@ -90,6 +92,8 @@ public class LoginGUI{
         });
         
         JButton signUp = new JButton("Sign Up");
+     //  signUp.setPreferredSize(new Dimension(80, 30));
+
         signUp.addActionListener(new ActionListener() {
 
             @Override
