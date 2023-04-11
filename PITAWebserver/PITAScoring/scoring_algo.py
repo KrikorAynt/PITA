@@ -120,7 +120,7 @@ def rescale(user_origin_joint, user_target_joint, trainer_origin_joint, trainer_
 
 
 def pose_score(user_, trainer_):
-    sampling_rate = 10
+    sampling_rate = 5
     scores = np.array([])
     acceptable_error = 0
 
@@ -203,10 +203,13 @@ def run(user_ref, trainer_ref):
     plt.xlim(0, np.shape(score)[0])
     plt.ylim(0, 105)
 
+    file_path = sys.argv[1]
+    file_name_with_extension = os.path.basename(file_path)
+    file_name, file_extension = os.path.splitext(file_name_with_extension)
     path = f"Graphs/{username}"
     if not os.path.exists(path):
         os.makedirs(path)
-    path = f"Graphs/{username}/{exercise}.png"
+    path = f"Graphs/{username}/{file_name}.png"
     plt.savefig(path)
     return path
 
@@ -217,11 +220,11 @@ if __name__ == '__main__':
         raise ValueError("Invalid arguments")
     url1 = sys.argv[1]
     if "bicep_curl" in sys.argv[3]:
-        url2 = "example/sample_data/bicep_curl_ref.txt"
+        url2 = "PITAScoring/example/sample_data/bicep_curl_ref.txt"
     elif "lat_raise" in sys.argv[3]:
-        url2 = "example/sample_data/lat_raise_ref.txt"
+        url2 = "PITAScoring/example/sample_data/lat_raise_ref.txt"
     elif "shoulder_press" in sys.argv[3]:
-        url2 = "example/sample_data/shoulder_press_ref.txt"
+        url2 = "PITAScoring/example/sample_data/shoulder_press_ref.txt"
     else:
         raise ValueError("Invalid exercise")
     print(run(url1, url2))
