@@ -77,14 +77,15 @@ public class VideoPlayer {
 	            listPanel.add(label);
 	            break;
 	        }
-	        JButton download = new JButton(title);
+	        Video vid = new Video(title, ".\\videos");
+            CSV csv = new CSV(title,".\\videos",vid.getExercise());
+	        JButton download = new JButton("<html>"+vid.getExercise()+"<br>"+title.replace(".avi", "")+"</html>");
 	        download.addActionListener(new ActionListener() {
 
 	            @Override
 	            public void actionPerformed(ActionEvent event) {
 	                JButton clickedButton = (JButton) event.getSource();
-	                Video vid = new Video(clickedButton.getText(), ".\\videos");
-	                CSV csv = new CSV(clickedButton.getText(),".\\videos",vid.getExercise());
+	                
 	                String graphImg = csv.imgRec();
 	                ImageIcon icon = new ImageIcon(graphImg);
 	                graph.setIcon(null); // clear the previous image
@@ -124,9 +125,9 @@ public class VideoPlayer {
 
 	    // Add components to main panel
 	    panel.add(playerPanel, BorderLayout.CENTER);
-	    panel.add(controlsPane, BorderLayout.NORTH);
+	    panel.add(controlsPane, BorderLayout.SOUTH);
 	    panel.add(listPanel, BorderLayout.LINE_START);
-	    panel.add(main, BorderLayout.PAGE_END);
+	    panel.add(main, BorderLayout.NORTH);
 	    panel.add(graph, BorderLayout.LINE_END);
 
 	    frame.add(panel);

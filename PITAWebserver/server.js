@@ -45,6 +45,7 @@ server.get("/reqGraph", sendGraph);
 server.get("/reqExer", sendExercise);
 server.get("/reqVidList", sendVideoList);
 server.get("/reqExerList", sendExerList);
+server.get("/reqExerVid", sendExerVid);
 
 http.createServer(server).listen(5000);
 
@@ -229,9 +230,10 @@ function sendVideo(req,res, next){
     else res.status(200).send("You are not logged in!");
 }
 function sendGraph(req,res, next){
-    let exercise = req.query.exercise;
+    let title = req.query.title;
+
     if (req.session.hasOwnProperty("loggedIn")){
-        let path  = "./Graphs/"+req.session.username+"/"+exercise+".png";
+        let path  = "./Graphs/"+req.session.username+"/"+title+".png";
 	    fs.readFile(path, function (err, data) {
             if (err) {
                 res.status(200).send("Requested Graph DNE");
@@ -274,6 +276,31 @@ function sendExerList(req, res, next) {
             let exercises = result.map((row) => row.exercise);
             let exerciseString = exercises.join(",");
             res.status(200).send(exerciseString);
+          }
+        }
+      );
+    } else {
+      res.status(200).send("You are not logged in!");
+    }
+}
+function sendExerVid(req, res, next) {
+    if (req.session.hasOwnProperty("loggedIn")) {
+      let exercise = req.query.exercise;
+      req.app.locals.pool.query(
+        "SELECT path FROM videos WHERE username= 'admin' AND exercise='"+exercise+"';",
+        function (err, result) {
+          if (err) res.status(200).send("There was an issue");;
+          if (result.length == 0) res.status(200).send("There are no exercises");
+          else {
+            let path = result[0].path;
+            fs.readFile(path, function (err, data) {
+                if (err) {
+                    res.status(200).send("Requested Video DNE");
+                } else {
+                    let video = Buffer.from(data).toString('base64');
+                    res.status(200).send(video);
+                }
+            });
           }
         }
       );

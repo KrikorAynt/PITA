@@ -67,9 +67,11 @@ public class CSV {
 	}
 	public String imgRec() {
 		try {
-			
+			String editedTitle = title.replace(".avi", "");
+			System.out.println(title);
+			System.out.println(editedTitle);
 			HttpRequest request = HttpRequest.newBuilder()
-			    .uri(URI.create(driver.url+"reqGraph?exercise="+exercise))
+			    .uri(URI.create(driver.url+"reqGraph?title="+editedTitle))
 			    .header("cookie", driver.cookie)
 			    .header("Content-Type", "application/json")
 			    .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -78,10 +80,10 @@ public class CSV {
 				response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 				if(!response.body().equals("Requested Graph DNE")) {
 					byte[] videoBytes = Base64.getDecoder().decode(response.body());
-					FileOutputStream fileOS = new FileOutputStream("./graphs/"+exercise+".jpg");
+					FileOutputStream fileOS = new FileOutputStream("./graphs/"+editedTitle+".jpg");
 					fileOS.write(videoBytes);
 					fileOS.close();
-					return "./graphs/"+exercise+".jpg";
+					return "./graphs/"+editedTitle+".jpg";
 				}
 				
 			} catch (IOException e) {
