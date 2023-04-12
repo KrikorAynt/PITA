@@ -30,7 +30,7 @@ public class LoginGUI{
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("PITA Login");
-        frame.setPreferredSize(new Dimension(700, 400));
+        frame.setPreferredSize(new Dimension(800, 400));
         
         try {
             backgroundImage = ImageIO.read(new File(".\\pita.jpg"));
@@ -53,7 +53,7 @@ public class LoginGUI{
         panel.setBorder(BorderFactory.createEmptyBorder(00, 400, 00, 10));
         panel.setLayout(new GridLayout(0,1));
         
-        JLabel label = new JLabel("LOGIN HERE", SwingConstants.CENTER);
+        JLabel label = new JLabel("<html>Login to your <br> Personal Intelligent Training Assistant</html>", SwingConstants.CENTER);
         label.setForeground(Color.BLACK);
         label.setFont(label.getFont().deriveFont(20f));
         
@@ -64,7 +64,7 @@ public class LoginGUI{
         passText.setPreferredSize(new Dimension(100, 20));
         
         JButton button = new JButton("Login");
-       // button.setPreferredSize(new Dimension(80, 30));
+        button.setPreferredSize(new Dimension(70, 25));
         
         button.addActionListener(new ActionListener() {
 
@@ -92,7 +92,7 @@ public class LoginGUI{
         });
         
         JButton signUp = new JButton("Sign Up");
-     //  signUp.setPreferredSize(new Dimension(80, 30));
+        signUp.setPreferredSize(new Dimension(70, 25));
 
         signUp.addActionListener(new ActionListener() {
 
@@ -105,10 +105,10 @@ public class LoginGUI{
         
         JPanel fieldPanel = new JPanel();
         fieldPanel.setOpaque(false);
-        fieldPanel.setLayout(new GridLayout(2, 2));
-        fieldPanel.add(new JLabel("Username:"));
+        fieldPanel.setLayout(new GridLayout(2, 2, 10, 5));
+        fieldPanel.add(new JLabel("Username:", SwingConstants.RIGHT));
         fieldPanel.add(userText);
-        fieldPanel.add(new JLabel("Password:"));
+        fieldPanel.add(new JLabel("Password:", SwingConstants.RIGHT));
         fieldPanel.add(passText);
         
         JPanel buttonPanel = new JPanel();
@@ -128,6 +128,8 @@ public class LoginGUI{
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.getRootPane().setDefaultButton(button);
+
+        frame.setResizable(false);
         frame.setVisible(true);
         
     }

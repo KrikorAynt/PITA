@@ -29,7 +29,7 @@ public class VideoPlayer {
 
 	public VideoPlayer() {
 	    JFrame frame = new JFrame();
-	    frame.setTitle("PETA Video Player");
+	    frame.setTitle("PITA Video Player");
 
 	    JPanel panel = new JPanel(new BorderLayout());
 
@@ -124,7 +124,7 @@ public class VideoPlayer {
 
 	    // Add components to main panel
 	    panel.add(playerPanel, BorderLayout.CENTER);
-	    panel.add(controlsPane, BorderLayout.SOUTH);
+	    panel.add(controlsPane, BorderLayout.NORTH);
 	    panel.add(listPanel, BorderLayout.LINE_START);
 	    panel.add(main, BorderLayout.PAGE_END);
 	    panel.add(graph, BorderLayout.LINE_END);
@@ -133,6 +133,7 @@ public class VideoPlayer {
 	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frame.pack();
 	    frame.setLocationRelativeTo(null);
+	    frame.setResizable(false);
 	    frame.setVisible(true);
 	    frame.setExtendedState(frame.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 	}

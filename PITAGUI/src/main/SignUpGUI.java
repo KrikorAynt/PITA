@@ -57,21 +57,21 @@ public class SignUpGUI {
 
         JPanel panel = new JPanel();
         panel.setOpaque(false);
-        panel.setBorder(BorderFactory.createEmptyBorder(00, 400, 00, 10));
-        panel.setLayout(new GridLayout(0, 1));
+        panel.setBorder(BorderFactory.createEmptyBorder(0, 400, 0, 10));
+        panel.setLayout(new GridLayout(0, 1, 10, 10));
 
         JLabel label = new JLabel("SIGN UP HERE", SwingConstants.CENTER);
         label.setForeground(Color.BLACK);
         label.setFont(label.getFont().deriveFont(20f));
 
         userText = new JTextField();
-        userText.setPreferredSize(new Dimension(100, 20));
+        userText.setPreferredSize(new Dimension(150, 30));
 
         passText = new JPasswordField();
-        passText.setPreferredSize(new Dimension(100, 20));
+        passText.setPreferredSize(new Dimension(150, 30));
 
         JButton button = new JButton("Sign Up");
-        // button.setPreferredSize(new Dimension(80, 30));
+        button.setPreferredSize(new Dimension(80, 30));
 
         button.addActionListener(new ActionListener() {
 
@@ -98,7 +98,7 @@ public class SignUpGUI {
         });
 
         JButton login = new JButton("Login");
-        // login.setPreferredSize(new Dimension(80, 30));
+        login.setPreferredSize(new Dimension(80, 30));
 
         login.addActionListener(new ActionListener() {
 
@@ -111,10 +111,10 @@ public class SignUpGUI {
 
         JPanel fieldPanel = new JPanel();
         fieldPanel.setOpaque(false);
-        fieldPanel.setLayout(new GridLayout(2, 2));
-        fieldPanel.add(new JLabel("Username:"));
+        fieldPanel.setLayout(new GridLayout(2, 2, 10, 10));
+        fieldPanel.add(new JLabel("Username:", SwingConstants.RIGHT));
         fieldPanel.add(userText);
-        fieldPanel.add(new JLabel("Password:"));
+        fieldPanel.add(new JLabel("Password:", SwingConstants.RIGHT));
         fieldPanel.add(passText);
 
         JPanel buttonPanel = new JPanel();
@@ -134,6 +134,8 @@ public class SignUpGUI {
         frame.pack();
         frame.setLocationRelativeTo(null);
         frame.getRootPane().setDefaultButton(button);
+
+        frame.setResizable(false);
         frame.setVisible(true);
     }
 

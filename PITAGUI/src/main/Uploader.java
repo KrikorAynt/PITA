@@ -1,7 +1,11 @@
 package main;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -11,6 +15,8 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -30,6 +36,7 @@ public class Uploader {
 	private JTextField csvText;
 	private JTextField exerText;
 	private JComboBox<String> exerDrop;
+	private Image backgroundImage;
 	
     
 
@@ -83,10 +90,32 @@ public class Uploader {
 
 	public Uploader() {
 		JFrame frame = new JFrame();
+		JPanel contentPane = new JPanel();
+		contentPane.setLayout(new BorderLayout());
 		JPanel panel = new JPanel();
-		panel.setBorder(BorderFactory.createEmptyBorder(300, 300, 300, 300));
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		panel.setLayout(new GridLayout(0,1));
+		contentPane.add(panel, BorderLayout.CENTER);
+		frame.setPreferredSize(new Dimension(1000, 1000));
 
+		 try {
+	            backgroundImage = ImageIO.read(new File(".\\2Dview.jpg"));
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }
+
+	        JPanel contentPane1 = new JPanel() {
+	            @Override
+	            protected void paintComponent(Graphics g) {
+	                super.paintComponent(g);
+	                g.drawImage(backgroundImage, 300, 400, this);
+	            }
+	        };
+	        
+	        JLabel instructionsBottom = new JLabel("<html>To record a new exercise select Record <br> For recording select all streams except 'Nui Long Exposure IR' <br> Check your 2D settings to match the image below<br></html>", SwingConstants.CENTER);
+	        instructionsBottom.setFont(new Font("Arial", Font.PLAIN, 16));
+	        
+	        
 		//Video Stuff Below
 		JButton record = new JButton("Record");
 		record.addActionListener(new ActionListener() {
@@ -106,8 +135,19 @@ public class Uploader {
 							}
 		});
 
+        JLabel instructionsTop = new JLabel("<html><br>To upload a newly recorded exercise select Upload <br> To upload a existing .xef file place it in the videos folder and select Upload</html>", SwingConstants.CENTER);
+        instructionsTop.setFont(new Font("Arial", Font.PLAIN, 16));
+        
+		
 
 		JButton upload = new JButton("Upload");
+		panel.add(instructionsBottom);
+		
+		panel.add(upload);
+		panel.add(instructionsTop);
+		contentPane1.add(panel, BorderLayout.CENTER);
+		frame.setContentPane(contentPane1);
+
 		upload.addActionListener(new ActionListener() {
 
 	        @Override
@@ -185,7 +225,7 @@ public class Uploader {
 		panel.add(main);
 
 		frame.add(panel,BorderLayout.LINE_END);
-		frame.setTitle("PETA Uploader");
+		frame.setTitle("PITA Uploader");
 
 		frame.addWindowListener(new WindowAdapter() {
             @Override
@@ -196,6 +236,8 @@ public class Uploader {
 
 
 		frame.pack();
+
+		frame.setResizable(false);
 		frame.setVisible(true);
 	}
 
