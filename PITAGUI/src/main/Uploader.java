@@ -71,7 +71,7 @@ public class Uploader {
 					        builder.redirectErrorStream(true);
 					        builder.start();
 					        
-					        
+					        // in case it doesn't work, comment out 75-90
 					        FileReader fpFile = new FileReader("filepath.txt");
 					        BufferedReader br = new BufferedReader(fpFile);
 					        String line;
