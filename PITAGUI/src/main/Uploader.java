@@ -32,7 +32,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Base64;
-
+import java.io.FileReader;
+import java.io.BufferedReader;
 
 public class Uploader {
 	private JTextField vidText;
@@ -42,56 +43,7 @@ public class Uploader {
 	private ImageIcon backgroundImage;
 	private PlayerPanel player;
 	
-    
-
-	public static List<File> findFilesByExtension(String directoryPath, String extension) {
-		File directory = new File(directoryPath);
-		List<File> matchingFiles = new ArrayList<>();
-
-		if (!directory.isDirectory()) {
-			System.err.println(directoryPath + " is not a directory!");
-			return matchingFiles;
-		}
-
-		File[] files = directory.listFiles();
-		if (files == null) {
-			System.err.println("Error: could not list files in " + directoryPath);
-			return matchingFiles;
-		}
-
-		for (File file : files) {
-			if (file.isFile() && file.getName().toLowerCase().endsWith(extension.toLowerCase())) {
-				matchingFiles.add(file);
-			}
-			else if (file.isDirectory()) {
-				matchingFiles.addAll(findFilesByExtension(file.getAbsolutePath(), extension));
-			}
-		}
-		return matchingFiles;
-	}
-
-
-  public static File findMostRecentFile(String directoryPath) {
-    File directory = new File(directoryPath);
-    File[] files = directory.listFiles();
-    if (files == null || files.length == 0) {
-      System.err.println("No files found in " + directoryPath);
-      return null;
-    }
-
-    return getMostRecentFile(files);
-  }
-
-  private static File getMostRecentFile(File[] files) {
-    File mostRecent = files[0];
-    for (int i = 1; i < files.length; i++) {
-      if (files[i].lastModified() > mostRecent.lastModified()) {
-        mostRecent = files[i];
-      }
-    }
-    return mostRecent;
-  }
-
+	
 	public Uploader() {
 		JFrame frame = new JFrame();
 		JPanel contentPane = new JPanel();
@@ -118,9 +70,32 @@ public class Uploader {
 					        ProcessBuilder builder = new ProcessBuilder("cmd.exe", "/c", "start \"KStudio\" \"" + kinectStudioPath + "\"");
 					        builder.redirectErrorStream(true);
 					        builder.start();
+					        
+					        
+					        FileReader fpFile = new FileReader("filepath.txt");
+					        BufferedReader br = new BufferedReader(fpFile);
+					        String line;
+					        
+					        String extractPath = null;  // = "C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";        
+					        //String extension = ".xef";
+
+					        while ((line = br.readLine()) != null){
+					                    System.out.println(line);
+					                    extractPath = line;
+					                }
+                            br.close();
+
+					        File f = new File(extractPath+"\\PITAfootage");
+					        f.mkdir();
+					        Thread.sleep(1000);
+					        
+					        
 								}catch (IOException e) {
 										System.out.println("FROM CATCH" + e.toString());
-								}
+								}catch(InterruptedException e) {
+					                e.printStackTrace();
+						        } 
+						
 							}
 		});
 
@@ -132,33 +107,52 @@ public class Uploader {
 	        public void actionPerformed(ActionEvent event) {
         	//Add recording and converting here
 						try{
-								// THE CONVERSION PART STAYS IN UPLOAD BUTTON (20 SECONDS TO COMPLETE CONVERSION)
+							// THE CONVERSION PART STAYS IN UPLOAD BUTTON (20 SECONDS TO COMPLETE CONVERSION)
 			    			// XEF Conversion Automation
-					        String extractPath = "C:\\Users\\antho\\OneDrive\\Documents\\GitHub\\PITA\\PITA\\PITAGUI\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
-					        String directoryPath = extractPath+"\\videos";
+					// in case 113-123 don't work, comment them out and uncomment 125		
+					        FileReader fpFile = new FileReader("filepath.txt");
+					        BufferedReader br = new BufferedReader(fpFile);
+					        String line;
+					        
+					        String extractPath = null;  // = "C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";				        
+
+					        while ((line = br.readLine()) != null){
+					                    System.out.println(line);
+					                    extractPath = line;
+					                }
+					        br.close();
+					        
+					        //String extractPath = "C:\\Users\\antho\\Downloads\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64";
+					        String directoryPath = extractPath+"\\PITAfootage";
 					        String extension = ".xef";
-					        List<File> matchingFiles = findFilesByExtension(directoryPath, extension);
+					        
+					        //String curDir = System.getProperty("user.dir");
+					        //System.out.println(curDir);			
+					        File directory = new File(directoryPath);
+					        File[] files = directory.listFiles((dir, name) -> name.endsWith(extension));
+					        File mostRecentFile = files[0];
+					        System.out.println("The most recent file with extension " + extension + " is: " + mostRecentFile.getName());
+
+				
 	
-					        File mostRecentFile = findMostRecentFile(directoryPath);
-					        if (mostRecentFile != null) {
-					          System.out.println("Most recent file: " + mostRecentFile.getAbsolutePath());
-					        }
-	
-					        for (File file : matchingFiles) {
+					        for (File file : files) {
+					        	
 					          System.out.println(file.getAbsolutePath());
 					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+file.getAbsolutePath());
 					          Thread.sleep(20000); // waits for 20 second
-					          if (file.delete()) {
-					            System.out.println("Deleted file: " + file.getAbsolutePath());
+					          String fileName = mostRecentFile.getName();
+					          if (file.getName().endsWith(extension)) {
+					        	  file.delete();
+					        	  System.out.println("Deleted file: " + file.getAbsolutePath());
 					            } else {
 					            System.out.println("Failed to delete file: " + file.getAbsolutePath());
 										}
-					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile.getAbsolutePath());
+					          Runtime.getRuntime().exec(extractPath+"\\xefextract.exe -v -s "+mostRecentFile.getAbsolutePath());					          					          					         
 					          
-					          String fileName = mostRecentFile.getName();
+					          System.out.println(fileName);
 					          fileName = fileName.substring(0, fileName.lastIndexOf('.'));
-					          Video vid = new Video(fileName+"_Video.avi",".\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",(String)exerDrop.getSelectedItem());
-							  CSV csv = new CSV(fileName+"_Skeleton.txt",".\\KinectXEFTools-master\\KinectXEFTools-master\\examples\\XEFExtract\\bin\\Release\\netcoreapp2.1\\win10-x64\\videos",(String)exerDrop.getSelectedItem());
+					          Video vid = new Video(fileName+"_Video.avi",directoryPath,(String)exerDrop.getSelectedItem());
+							  CSV csv = new CSV(fileName+"_Skeleton.txt",directoryPath,(String)exerDrop.getSelectedItem());
 							  vid.videoSend();
 							  csv.csvSend();
 				        }

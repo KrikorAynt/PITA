@@ -67,7 +67,7 @@ public class CSV {
 	}
 	public String imgRec() {
 		try {
-			String editedTitle = title.replace(".avi", "");
+			String editedTitle = title.replace("_Video.avi", "_Skeleton");
 			System.out.println(title);
 			System.out.println(editedTitle);
 			HttpRequest request = HttpRequest.newBuilder()
