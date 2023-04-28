@@ -196,7 +196,7 @@ def run(user_ref, trainer_ref):
         username = sys.argv[2]
         exercise = sys.argv[3]
     score, final_score = pose_score(user_body, trainer_body)
-    plt.scatter(range(np.shape(score)[0]), score)
+    plt.plot(range(np.shape(score)[0]), score)
     plt.title(f"{username} {exercise}\nFinal Score: {max(0, final_score):.1f}")
     plt.xlabel("Time")
     plt.ylabel("Score")
