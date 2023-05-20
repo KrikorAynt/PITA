@@ -18,4 +18,4 @@ In driver class of client, change the ip to the ip of your server
 
 Server needs MySQL, Python and Node.js 
 
-[![Instructional Video](path/to/your-image-thumbnail.png)](https://www.youtube.com/watch?v=PtywihQrjfU)
+[![Instructional Video](https://user-images.githubusercontent.com/28371888/239660046-079d11de-0fad-4983-a6d5-e37e11ebbbba.png)](https://www.youtube.com/watch?v=PtywihQrjfU)
