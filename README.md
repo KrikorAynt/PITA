@@ -4,7 +4,7 @@ Capstone Project for 4th Year Engineers
 
 Requires Microsoft Kinect Camera
 
-Dependancies:
+Dependencies:
 
 Run installer
 
